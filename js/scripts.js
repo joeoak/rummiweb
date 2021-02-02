@@ -1,13 +1,19 @@
-let deck = new Array();
-let board = new Array();
-let playerHand = new Array();
-let playerRack = new Array();
-let rowIds = new Array();
-let _canvas = document.querySelector('#canvas');
-let _board = document.querySelector('#board');
-let _boardRows = document.querySelector('#board-rows');
-let _playerHand = document.querySelector('#player-hand');
-let _playerRack = document.querySelector('#player-rack');
+let deck = new Array(), 
+    board = new Array(), 
+    playerHand = new Array(), 
+    playerRack = new Array(), 
+    rowIds = new Array();
+
+let turnCounter;
+let playerCount;
+
+let _canvas = document.querySelector('#canvas'),
+    _board = document.querySelector('#board'),
+    _boardRows = document.querySelector('#board-rows'),
+    _hud = document.querySelector('#hud');
+    _playerTitle = document.querySelector('#player-title');
+    _playerHand = document.querySelector('#player-hand'),
+    _playerRack = document.querySelector('#player-rack');
 
 const initiateDeck = (deck) => 
 {
@@ -47,16 +53,48 @@ const initiateDeck = (deck) =>
     }
 }
 
-function generateId()
+const distributeCards = () =>
+{
+    for (let i = 1; i <= playerCount; i++)
+    {
+        let rack = new Array();
+
+        for (let j = 0; j < 14; j++)
+        {
+            let r = Math.floor(Math.random() * deck.length);
+            let target = deck.splice(r, 1);
+            rack.push(target[0]);
+        }
+
+        playerRack.push(
+        {
+            name: `Player ${i}`,
+            // player: i,
+            rack: rack,
+        });
+    }
+}
+
+const gameStart = () =>
+{
+    turnCounter = 1;
+    playerCount = 4;
+    
+    initiateDeck(deck);
+    distributeCards();
+    drawCanvas();
+}
+
+const generateId = (arr) =>
 {
     let range = 106; // num of unique ids that can be generated
     let r = Math.floor(Math.random() * range);
 
-    if (rowIds.includes(r))
+    if (arr.includes(r))
     {
-        if (rowIds.length < range) // stops loop if length > range
+        if (arr.length < range) // stops loop if length > range
         {
-            return generateId(); // generate a new r
+            return generateId(arr); // generate a new r
         }
         else
         {
@@ -66,8 +104,62 @@ function generateId()
     }
     else
     {
-        rowIds.push(r); // register id
+        arr.push(r); // register id
         return r;
+    }
+}
+
+function isEven(n)
+{
+    return n % 2 == 0;
+}
+
+const returnPlayerRack = () =>
+{
+    if (playerCount === 2)
+    {
+        if (turnCounter % playerCount === 0)
+        {
+            return playerRack[1];
+        }
+        else if (turnCounter % playerCount === 1)
+        {
+            return playerRack[0];
+        }
+    }
+    else if (playerCount === 3)
+    {
+        if (turnCounter % playerCount === 0)
+        {
+            return playerRack[2];
+        }
+        else if (turnCounter % playerCount === 2)
+        {
+            return playerRack[1];
+        }
+        else if (turnCounter % playerCount === 1)
+        {
+            return playerRack[0];
+        }
+    }
+    else if (playerCount === 4)
+    {
+        if (turnCounter % playerCount === 0)
+        {
+            return playerRack[3];
+        }
+        else if (turnCounter % playerCount === 3)
+        {
+            return playerRack[2];
+        }
+        else if (turnCounter % playerCount === 2)
+        {
+            return playerRack[1];
+        }
+        else if (turnCounter % playerCount === 1)
+        {
+            return playerRack[0];
+        }
     }
 }
 
@@ -98,18 +190,11 @@ const insertCardElement = (arr, parent, onclickFn) =>
 const drawCanvas = () =>
 {
     _boardRows.innerHTML = '';
+    _hud.innerHTML = '';
     _playerRack.innerHTML = '';
     _playerHand.innerHTML = '';
 
-    for (let i = 0; i < board.length; i++) // clear empty rows
-    {
-        if (board[i].cards.length === 0)
-        {
-            board.splice(i, 1);
-        };
-    }
-
-    for (let i = 0; i < board.length; i++)
+    for (let i = 0; i < board.length; i++) // sort cards
     {
         for (let j = 0; j < board[i].cards.length; j++)
         {
@@ -134,7 +219,15 @@ const drawCanvas = () =>
         }
     }
 
-    for (let i = 0; i < board.length; i++)
+    for (let i = 0; i < board.length; i++) // clear empty rows
+    {
+        if (board[i].cards.length === 0)
+        {
+            board.splice(i, 1);
+        };
+    }
+
+    for (let i = 0; i < board.length; i++) // draw rows
     {
         let targetRow = board[i];
         let newRow = document.createElement('div');
@@ -145,24 +238,21 @@ const drawCanvas = () =>
         _boardRows.appendChild(newRow);
     }
 
+    // draw add button
     let addButton = document.createElement('div');
     addButton.id = 'new-row'
     addButton.innerHTML += `<button id="button-new-row" onclick="addGroup()">+</button>`;
     _boardRows.appendChild(addButton);
 
-    insertCardElement(playerHand, _playerHand, deselectCard);
-    insertCardElement(playerRack, _playerRack, selectCard);
+    insertCardElement(playerHand, _playerHand, deselectCard); // draw player hand    
+    insertCardElement(returnPlayerRack().rack, _playerRack, selectCard); // draw player rack
+
+    _hud.innerHTML = `Turn: ${turnCounter}`;
+
+    _playerTitle.innerHTML = returnPlayerRack().name;
 }
 
-const distributeCards = () =>
-{
-    for (let i = 0; i < 14; i++)
-    {
-        let r = Math.floor(Math.random() * deck.length);
-        let target = deck.splice(r, 1);
-        playerRack.push(target[0]);
-    }
-}
+// events
 
 const drawCard = () =>
 {
@@ -170,7 +260,7 @@ const drawCard = () =>
     {
         let r = Math.floor(Math.random() * deck.length);
         let target = deck.splice(r, 1);
-        playerRack.push(target[0]);
+        returnPlayerRack().rack.push(target[0]);
         drawCanvas();
     }
 }
@@ -186,11 +276,11 @@ const selectCard = (e) =>
     {
         let target;
 
-        for (let i = 0; i < playerRack.length; i++)
+        for (let i = 0; i < returnPlayerRack().rack.length; i++)
         {
-            if (playerRack[i].label === targetLabel)
+            if (returnPlayerRack().rack[i].label === targetLabel)
             {
-                target = playerRack.splice(i, 1);      
+                target = returnPlayerRack().rack.splice(i, 1);      
             };
         }
 
@@ -225,7 +315,7 @@ const selectCard = (e) =>
 const deselectCard = () => 
 {
     let target = playerHand.splice(0, 1);
-    playerRack.push(target[0]);
+    returnPlayerRack().rack.push(target[0]);
 
     drawCanvas();
 }
@@ -255,7 +345,7 @@ const addGroup = () =>
 {
     let newRow = 
     {
-        id: `row-${generateId()}`,
+        id: `row-${generateId(rowIds)}`,
         cards: [],
     }
 
@@ -270,6 +360,10 @@ const addGroup = () =>
     drawCanvas();
 }
 
-initiateDeck(deck);
-distributeCards();
-drawCanvas();
+const advanceTurn = () =>
+{
+    turnCounter += 1;
+    drawCanvas();
+}
+
+gameStart();
