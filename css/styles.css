@@ -124,6 +124,9 @@ button:focus {
   user-select: none;
   cursor: pointer;
 }
+.card.held {
+  box-shadow: 0 0 0 2px springgreen;
+}
 .card.black {
   border-color: black;
   color: black;

@@ -134,6 +134,10 @@ button {
     user-select: none;
     cursor: pointer;
 
+    &.held {
+        box-shadow: 0 0 0 2px springgreen;
+    }
+
     &.black {
         border-color: black;
         color: black;

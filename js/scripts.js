@@ -33,6 +33,7 @@ const initiateDeck = (deck) =>
                 deck.push(
                 {
                     color: color,
+                    isHeld: false,
                     label: `${color}-${k}-${set}`,
                     num: k,
                     set: set,
@@ -45,6 +46,7 @@ const initiateDeck = (deck) =>
         deck.push(
         {
             color: null,
+            isHeld: false,
             label: `joker-${set}`,
             num: null,
             set: set,
@@ -63,6 +65,7 @@ const distributeCards = () =>
         {
             let r = Math.floor(Math.random() * deck.length);
             let target = deck.splice(r, 1);
+            target[0].isHeld = true;
             rack.push(target[0]);
         }
 
@@ -78,8 +81,8 @@ const distributeCards = () =>
 const gameStart = () =>
 {
     turnCounter = 1;
-    playerCount = 4;
-    
+    playerCount = 3;
+
     initiateDeck(deck);
     distributeCards();
     drawCanvas();
@@ -173,6 +176,14 @@ const insertCardElement = (arr, parent, onclickFn) =>
         newCard.className = 'card';
         newCard.onclick = (e) => onclickFn(e);
 
+        if (obj.isHeld)
+        {
+            if (parent.className === 'row' || parent.id === 'player-hand')
+            {
+                newCard.classList.add('held');
+            }
+        }
+
         if (obj.type === 'num')
         {
             newCard.classList.add(obj.color);
@@ -194,7 +205,7 @@ const drawCanvas = () =>
     _playerRack.innerHTML = '';
     _playerHand.innerHTML = '';
 
-    for (let i = 0; i < board.length; i++) // sort cards
+    for (let i = 0; i < board.length; i++) // sort board cards
     {
         for (let j = 0; j < board[i].cards.length; j++)
         {
@@ -244,10 +255,37 @@ const drawCanvas = () =>
     addButton.innerHTML += `<button id="button-new-row" onclick="addGroup()">+</button>`;
     _boardRows.appendChild(addButton);
 
+    for (let i = 0; i < returnPlayerRack().rack.length; i++) // sort rack cards
+    {
+        returnPlayerRack().rack.sort(function(a, b) // sort by color alphabetically
+        {
+            if (a.color < b.color)
+            {
+                return -1;
+            }
+            if (a.color > b.color)
+            {
+                return 1;
+            }
+
+            return 0;
+        });
+
+        returnPlayerRack().rack.sort(function(a, b) // sort by number
+        {
+            return a.num - b.num;
+        });
+    }
+
     insertCardElement(playerHand, _playerHand, deselectCard); // draw player hand    
     insertCardElement(returnPlayerRack().rack, _playerRack, selectCard); // draw player rack
 
     _hud.innerHTML = `Turn: ${turnCounter}`;
+
+    for (let i = 0; i < playerCount; i++)
+    {
+        _hud.innerHTML += `<br />${playerRack[i].name}: ${playerRack[i].rack.length}`;
+    }
 
     _playerTitle.innerHTML = returnPlayerRack().name;
 }
@@ -260,6 +298,7 @@ const drawCard = () =>
     {
         let r = Math.floor(Math.random() * deck.length);
         let target = deck.splice(r, 1);
+        target[0].isHeld = true;
         returnPlayerRack().rack.push(target[0]);
         drawCanvas();
     }
@@ -267,12 +306,12 @@ const drawCard = () =>
 
 const selectCard = (e) => 
 {
-    e.stopPropagation();
+    e.stopPropagation(); // prevent player from triggering row underneath card
 
     let targetLabel = e.target.id;
     let targetParent = e.path[1];
 
-    if (targetParent.id === 'player-rack')
+    if (targetParent.id === 'player-rack') // if in the player rack
     {
         let target;
 
@@ -286,7 +325,7 @@ const selectCard = (e) =>
 
         playerHand.push(target[0]);
     }
-    else if (targetParent.className === 'row')
+    else if (targetParent.className === 'row') // if in a row
     {
         let target;
 
@@ -312,12 +351,19 @@ const selectCard = (e) =>
     drawCanvas();
 }
 
-const deselectCard = () => 
+const deselectCard = (e) => 
 {
-    let target = playerHand.splice(0, 1);
-    returnPlayerRack().rack.push(target[0]);
+    let targetLabel = e.target.id;
 
-    drawCanvas();
+    for (let i = 0; i < playerHand.length; i++)
+    {
+        if (playerHand[i].label === targetLabel && playerHand[i].isHeld === true)
+        {
+            let target = playerHand.splice(i, 1);
+            returnPlayerRack().rack.push(target[0]);
+            drawCanvas();
+        }
+    }
 }
 
 const selectRow = (e) =>
@@ -362,6 +408,22 @@ const addGroup = () =>
 
 const advanceTurn = () =>
 {
+    // set all cards to isHeld = false
+    for (let i = 0; i < board.length; i++)
+    {
+        let row = board[i].cards;
+
+        for (let j = 0; j < row.length; j++)
+        {
+            let card = row[j];
+
+            if (card.isHeld === true)
+            {
+                card.isHeld = false;
+            }
+        }
+    } 
+
     turnCounter += 1;
     drawCanvas();
 }
