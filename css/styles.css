@@ -5,7 +5,7 @@
 }
 
 body {
-  font-family: "system-ui", Helvetica, Arial, sans-serif;
+  font-family: "Roboto Mono", "system-ui", "Helvetica", "Arial", "sans-serif";
   font-size: 20px;
   line-height: 1.5;
 }
@@ -14,10 +14,10 @@ button {
   display: flex;
   align-items: center;
   margin: 4px;
-  padding: 4px 12px;
+  padding: 6px 12px 6px 12px;
   border: none;
-  border-radius: 4px;
   color: white;
+  font-family: "Roboto Mono", "system-ui", "Helvetica", "Arial", "sans-serif";
   font-size: 20px;
   line-height: 1.5;
   background-color: black;
@@ -44,23 +44,26 @@ button:focus {
   padding: 16px;
 }
 
-#board-title, #player-title {
-  font-weight: 700;
-}
-
 #board-rows {
   display: flex;
-  flex-direction: column;
+  align-content: center;
+  align-items: stretch;
+  justify-content: center;
+  flex-direction: row;
   flex-wrap: wrap;
   height: 100%;
-  padding: 0;
+  padding: 16px;
 }
 
 #new-row {
   display: flex;
   align-content: flex-start;
   flex-wrap: wrap;
-  padding: 16px;
+  margin: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.24);
+  background-color: white;
 }
 
 .row {
@@ -68,25 +71,30 @@ button:focus {
   align-content: flex-start;
   flex-direction: row;
   flex-wrap: wrap;
-  padding: 16px;
-}
-.row:nth-child(odd) {
-  background-color: #EEEEEE;
+  max-width: 362px;
+  margin: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.24);
 }
 
 #player {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  width: 320px;
-  background-color: #EEEEEE;
+  min-width: 224px;
+  max-width: 416px;
+  box-shadow: 1px 0 0 rgba(0, 0, 0, 0.24);
+  background-color: white;
+  overflow: scroll;
+  resize: horizontal;
 }
 #player > * {
   display: flex;
   align-content: flex-start;
   flex-wrap: wrap;
   padding: 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.16);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.24);
 }
 
 #player-hand {
@@ -106,8 +114,6 @@ button:focus {
   color: black;
   background: none;
   margin: 4px;
-  border: 1px solid black;
-  border-style: dashed;
 }
 
 .card {
@@ -117,7 +123,7 @@ button:focus {
   width: 40px;
   height: 40px;
   margin: 4px;
-  border-radius: 4px;
+  border-radius: 8px;
   border: 1px solid black;
   font-weight: 700;
   background-color: white;

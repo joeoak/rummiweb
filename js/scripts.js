@@ -71,7 +71,7 @@ const distributeCards = () =>
 
         playerRack.push(
         {
-            name: `Player ${i}`,
+            name: `player ${i}`,
             // player: i,
             rack: rack,
         });
@@ -280,7 +280,7 @@ const drawCanvas = () =>
     insertCardElement(playerHand, _playerHand, deselectCard); // draw player hand    
     insertCardElement(returnPlayerRack().rack, _playerRack, selectCard); // draw player rack
 
-    _hud.innerHTML = `Turn: ${turnCounter}`;
+    _hud.innerHTML = `turn: ${turnCounter}`;
 
     for (let i = 0; i < playerCount; i++)
     {

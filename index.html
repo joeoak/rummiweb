@@ -4,22 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>rummikub</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
     <div id="canvas">
+        <div id="player">
+            <div id="game-title">rummiweb.io</div>
+            <div id="player-title">null</div>
+            <div id="player-rack"></div>
+            <div id="player-hand"></div>
+            <div id="hud">null</div>
+            <div id="player-controls">
+                <button id="button-draw" onclick="drawCard()">draw</button>
+                <button id="button-next-turn" onclick="advanceTurn()">next turn</button>
+                <button id="button-reset">reset</button>
+            </div>
+        </div>
         <div id="board">
             <div id="board-rows"></div>
-        </div>
-        <div id="player">
-            <div id="hud">Turn Counter</div>
-            <div id="player-title">Player Rack</div>
-            <div id="player-hand"></div>
-            <div id="player-rack"></div>
-            <div id="player-controls">
-                <button id="button-draw" onclick="drawCard()">Draw</button>
-                <button id="button-next-turn" onclick="advanceTurn()">Next turn</button>
-            </div>
         </div>
     </div>
 

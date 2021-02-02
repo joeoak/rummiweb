@@ -5,7 +5,7 @@
 }
 
 body {
-    font-family: "system-ui", Helvetica, Arial, sans-serif;
+    font-family: "Roboto Mono", "system-ui", "Helvetica", "Arial", "sans-serif";
     font-size: 20px;
     line-height: 1.5;
 }
@@ -14,10 +14,11 @@ button {
     display: flex;
     align-items: center;
     margin: 4px;
-    padding: 4px 12px;
+    padding: 6px 12px 6px 12px;
     border: none;
-    border-radius: 4px;
+    // border-radius: 4px;
     color: white;
+    font-family: "Roboto Mono", "system-ui", "Helvetica", "Arial", "sans-serif";
     font-size: 20px;
     line-height: 1.5;
     background-color: black;
@@ -47,23 +48,32 @@ button {
     }
 }
 
-#board-title, #player-title {
-    font-weight: 700; 
-}
+// #board-title, #player-title {
+//     font-weight: 700; 
+// }
 
 #board-rows {
     display: flex;
-    flex-direction: column;
+    align-content: center;
+    align-items: stretch;
+    justify-content: center;
+    flex-direction: row;
     flex-wrap: wrap;
     height: 100%;
-    padding: 0;
+    padding: 16px;
 }
 
 #new-row {
     display: flex;
     align-content: flex-start;
     flex-wrap: wrap;
-    padding: 16px;
+    margin: 8px;
+    padding: 12px;
+    border-radius: 16px;
+    // box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.24);
+    border: 1px solid rgba(0, 0, 0, 0.24);
+    // border-style: dashed;
+    background-color: white;
 }
 
 .row {
@@ -71,11 +81,17 @@ button {
     align-content: flex-start;
     flex-direction: row;
     flex-wrap: wrap;
-    padding: 16px;
+    max-width: 362px; // width of 7 cards
+    margin: 8px;
+    padding: 12px;
+    border-radius: 16px;
+    // box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.24);
+    border: 1px solid rgba(0, 0, 0, 0.24);
+    // background-color: #EEEEEE;
 
-    &:nth-child(odd) {
-        background-color: #EEEEEE;
-    }
+    // &:nth-child(odd) {
+    //     background-color: #EEEEEE;
+    // }
 }
 
 #player {
@@ -83,15 +99,19 @@ button {
 
     display: flex;
     flex-direction: column;
-    width: 320px;
-    background-color: #EEEEEE;
+    min-width: 224px; // width of 4 cards
+    max-width: 416px; // width of 8 cards
+    box-shadow: 1px 0 0 rgba(0, 0, 0, 0.24);
+    background-color: white;
+    overflow: scroll;
+    resize: horizontal;
 
     & > * {
         display: flex;
         align-content: flex-start;
         flex-wrap: wrap;
         padding: 16px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.16);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.24);
     }
 }
 
@@ -107,14 +127,17 @@ button {
 
 #player-controls {
     flex-grow: 0;
+
+    // display: flex;
+    // justify-content: flex-end;
 }
 
 #button-new-row {
     color: black;
     background: none;
     margin: 4px;
-    border: 1px solid black;
-    border-style: dashed;
+    // border: 1px solid rgba(0, 0, 0, 0.24);
+    // border-style: dashed;
 }
 
 .card {
@@ -124,11 +147,11 @@ button {
     width: 40px;
     height: 40px;
     margin: 4px;
-    border-radius: 4px;
+    border-radius: 8px;
     border: 1px solid black;
     // box-shadow:
     //     0 0 1px rgba(0, 0, 0, 0.32),
-    //     0 1px 2px rgba(0, 0, 0, 0.16);
+    //     0 1px 2px rgba(0, 0, 0, 0.24);
     font-weight: 700;
     background-color: white;
     user-select: none;
