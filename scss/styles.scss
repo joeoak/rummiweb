@@ -6,7 +6,7 @@
 
 body {
     font-family: "Roboto Mono", "system-ui", "Helvetica", "Arial", "sans-serif";
-    font-size: 20px;
+    font-size: 16px;
     line-height: 1.5;
 }
 
@@ -92,6 +92,11 @@ button {
     // &:nth-child(odd) {
     //     background-color: #EEEEEE;
     // }
+
+    &.invalid {
+        // box-shadow: 0 0 0 2px pink;
+        border-color: red;
+    }
 }
 
 #player {
@@ -133,11 +138,18 @@ button {
 }
 
 #button-new-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: black;
     background: none;
+    width: 40px;
+    height: 40px;
     margin: 4px;
-    // border: 1px solid rgba(0, 0, 0, 0.24);
-    // border-style: dashed;
+    border: 1px solid rgba(0, 0, 0, 0.24);
+    border-style: dashed;
+    font-size: 24px;
+    border-radius: 8px;
 }
 
 .card {
@@ -152,6 +164,7 @@ button {
     // box-shadow:
     //     0 0 1px rgba(0, 0, 0, 0.32),
     //     0 1px 2px rgba(0, 0, 0, 0.24);
+    font-size: 24px;
     font-weight: 700;
     background-color: white;
     user-select: none;
@@ -162,8 +175,8 @@ button {
     }
 
     &.black {
-        border-color: black;
-        color: black;
+        border-color: green;
+        color: green;
     }
 
     &.blue {

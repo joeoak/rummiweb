@@ -61,7 +61,7 @@ const distributeCards = () =>
     {
         let rack = new Array();
 
-        for (let j = 0; j < 14; j++)
+        for (let j = 0; j < 35; j++)
         {
             let r = Math.floor(Math.random() * deck.length);
             let target = deck.splice(r, 1);
@@ -178,7 +178,7 @@ const insertCardElement = (arr, parent, onclickFn) =>
 
         if (obj.isHeld)
         {
-            if (parent.className === 'row' || parent.id === 'player-hand')
+            if (parent.classList.contains('row') || parent.id === 'player-hand')
             {
                 newCard.classList.add('held');
             }
@@ -198,12 +198,102 @@ const insertCardElement = (arr, parent, onclickFn) =>
     }
 }
 
+const isAllEqual = (arr) =>
+{
+    return arr.every(val => val.num === arr[0].num);
+}
+
+const isDifferentColors = (arr) =>
+{
+    // count amounts of each color
+    let counter = {};
+    arr.forEach(val =>
+    {
+        counter[val.color] = (counter[val.color] || 0) + 1;
+    });
+
+    return Object.values(counter).every(val => val <= 1); // check if any amount > 1
+}
+
+const isSameColors = (arr) =>
+{
+    return arr.every(val => val.color === arr[0].color);
+}
+
+const isConsecutive = (arr) =>
+{
+    let sequence = new Array(),
+        differences = new Array();
+
+    arr.forEach(val =>
+    {
+        sequence.push(val.num); // build new array of numbers
+    })
+
+    sequence.sort((a, b) =>
+    {
+        return a - b; // sort new array of numbers
+    });
+
+    sequence.forEach((val, index) =>
+    {
+        if (index > 0)
+        {
+            differences.push(val - sequence[index - 1]); // build new array of differences
+        }
+    });
+
+    return differences.every(val => val === 1); // check if any differences > 1
+}
+
+const verifyRows = () =>
+{
+    board.forEach((row) =>
+    {
+        if (row.cards.length < 3)
+        {
+            row.isValid = false;
+        }
+        else
+        {
+            if (isDifferentColors(row.cards)) // if different colors, one of each
+            {
+                if (isAllEqual(row.cards)) // if all same numbers
+                {
+                    row.isValid = true;
+                }
+                else
+                {
+                    row.isValid = false;
+                }
+            }
+            else if (isSameColors(row.cards)) // if all same colors
+            {
+                if (isConsecutive(row.cards)) // if consecutive
+                {
+                    row.isValid = true;
+                }
+                else
+                {
+                    row.isValid = false;
+                }
+            }
+            else
+            {
+                row.isValid = false;
+            }
+        }
+    });
+}
+
 const drawCanvas = () =>
 {
     _boardRows.innerHTML = '';
     _hud.innerHTML = '';
     _playerRack.innerHTML = '';
     _playerHand.innerHTML = '';
+
+    verifyRows();
 
     for (let i = 0; i < board.length; i++) // sort board cards
     {
@@ -244,6 +334,12 @@ const drawCanvas = () =>
         let newRow = document.createElement('div');
         newRow.id = targetRow.id;
         newRow.className = 'row';
+
+        if (!targetRow.isValid)
+        {
+            newRow.classList.add('invalid');
+        }
+
         newRow.onclick = (e) => selectRow(e);
         insertCardElement(targetRow.cards, newRow, selectCard);
         _boardRows.appendChild(newRow);
@@ -252,7 +348,7 @@ const drawCanvas = () =>
     // draw add button
     let addButton = document.createElement('div');
     addButton.id = 'new-row'
-    addButton.innerHTML += `<button id="button-new-row" onclick="addGroup()">+</button>`;
+    addButton.innerHTML += `<button id="button-new-row" onclick="addGroup()">➕</button>`;
     _boardRows.appendChild(addButton);
 
     for (let i = 0; i < returnPlayerRack().rack.length; i++) // sort rack cards
@@ -284,10 +380,10 @@ const drawCanvas = () =>
 
     for (let i = 0; i < playerCount; i++)
     {
-        _hud.innerHTML += `<br />${playerRack[i].name}: ${playerRack[i].rack.length}`;
+        _hud.innerHTML += `<br />🐶 ${playerRack[i].name}: ${playerRack[i].rack.length}`;
     }
 
-    _playerTitle.innerHTML = returnPlayerRack().name;
+    _playerTitle.innerHTML = `🐶 ${returnPlayerRack().name}`;
 }
 
 // events
@@ -325,7 +421,7 @@ const selectCard = (e) =>
 
         playerHand.push(target[0]);
     }
-    else if (targetParent.className === 'row') // if in a row
+    else if (targetParent.classList.contains('row')) // if in a row
     {
         let target;
 
@@ -392,6 +488,7 @@ const addGroup = () =>
     let newRow = 
     {
         id: `row-${generateId(rowIds)}`,
+        isValid: true,
         cards: [],
     }
 

@@ -6,7 +6,7 @@
 
 body {
   font-family: "Roboto Mono", "system-ui", "Helvetica", "Arial", "sans-serif";
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
@@ -77,6 +77,9 @@ button:focus {
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.24);
 }
+.row.invalid {
+  border-color: red;
+}
 
 #player {
   flex-shrink: 0;
@@ -111,9 +114,18 @@ button:focus {
 }
 
 #button-new-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: black;
   background: none;
+  width: 40px;
+  height: 40px;
   margin: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.24);
+  border-style: dashed;
+  font-size: 24px;
+  border-radius: 8px;
 }
 
 .card {
@@ -125,6 +137,7 @@ button:focus {
   margin: 4px;
   border-radius: 8px;
   border: 1px solid black;
+  font-size: 24px;
   font-weight: 700;
   background-color: white;
   user-select: none;
@@ -134,8 +147,8 @@ button:focus {
   box-shadow: 0 0 0 2px springgreen;
 }
 .card.black {
-  border-color: black;
-  color: black;
+  border-color: green;
+  color: green;
 }
 .card.blue {
   border-color: blue;
