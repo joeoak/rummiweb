@@ -6,6 +6,8 @@ let deck = new Array(),
 
 let turnCounter;
 let playerCount;
+let isBoardValid;
+let isPlayerPlacedCards;
 
 let _canvas = document.querySelector('#canvas'),
     _board = document.querySelector('#board'),
@@ -61,7 +63,7 @@ const distributeCards = () =>
     {
         let rack = new Array();
 
-        for (let j = 0; j < 35; j++)
+        for (let j = 0; j < 14; j++)
         {
             let r = Math.floor(Math.random() * deck.length);
             let target = deck.splice(r, 1);
@@ -81,7 +83,7 @@ const distributeCards = () =>
 const gameStart = () =>
 {
     turnCounter = 1;
-    playerCount = 3;
+    playerCount = 4;
 
     initiateDeck(deck);
     distributeCards();
@@ -248,11 +250,14 @@ const isConsecutive = (arr) =>
 
 const verifyRows = () =>
 {
+    isBoardValid = true; // assume true to start
+
     board.forEach((row) =>
     {
         if (row.cards.length < 3)
         {
             row.isValid = false;
+            isBoardValid = false;
         }
         else
         {
@@ -265,6 +270,7 @@ const verifyRows = () =>
                 else
                 {
                     row.isValid = false;
+                    isBoardValid = false;
                 }
             }
             else if (isSameColors(row.cards)) // if all same colors
@@ -276,13 +282,31 @@ const verifyRows = () =>
                 else
                 {
                     row.isValid = false;
+                    isBoardValid = false;
                 }
             }
             else
             {
                 row.isValid = false;
+                isBoardValid = false;
             }
         }
+    });
+}
+
+const checkIfPlayerPlacedCards = () =>
+{
+    isPlayerPlacedCards = false; // assume false to start
+
+    board.forEach(row =>
+    {
+        row.cards.forEach(card =>
+        {
+            if (card.isHeld === true)
+            {
+                isPlayerPlacedCards = true;
+            }
+        })
     });
 }
 
@@ -294,6 +318,10 @@ const drawCanvas = () =>
     _playerHand.innerHTML = '';
 
     verifyRows();
+    // console.log({isBoardValid});
+
+    checkIfPlayerPlacedCards();
+    // console.log({isPlayerPlacedCards});
 
     for (let i = 0; i < board.length; i++) // sort board cards
     {
@@ -505,24 +533,34 @@ const addGroup = () =>
 
 const advanceTurn = () =>
 {
-    // set all cards to isHeld = false
-    for (let i = 0; i < board.length; i++)
+    if (isBoardValid === true && playerHand.length <= 0)
     {
-        let row = board[i].cards;
-
-        for (let j = 0; j < row.length; j++)
+        if (isPlayerPlacedCards)
         {
-            let card = row[j];
-
-            if (card.isHeld === true)
+            // set all cards to isHeld = false
+            for (let i = 0; i < board.length; i++)
             {
-                card.isHeld = false;
+                let row = board[i].cards;
+
+                for (let j = 0; j < row.length; j++)
+                {
+                    let card = row[j];
+
+                    if (card.isHeld === true)
+                    {
+                        card.isHeld = false;
+                    }
+                }
             }
         }
-    } 
+        else
+        {
+            drawCard();
+        }
 
-    turnCounter += 1;
-    drawCanvas();
+        turnCounter += 1;
+        drawCanvas();
+    }
 }
 
 gameStart();
