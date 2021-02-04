@@ -52,7 +52,7 @@ button {
 //     font-weight: 700; 
 // }
 
-#board-rows {
+#board-sets {
     display: flex;
     align-content: center;
     align-items: stretch;
@@ -63,20 +63,20 @@ button {
     padding: 16px;
 }
 
-#new-row {
-    display: flex;
-    align-content: flex-start;
-    flex-wrap: wrap;
-    margin: 8px;
-    padding: 12px;
-    border-radius: 16px;
-    // box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.24);
-    border: 1px solid rgba(0, 0, 0, 0.24);
-    // border-style: dashed;
-    background-color: white;
-}
+// #new-row {
+//     display: flex;
+//     align-content: flex-start;
+//     flex-wrap: wrap;
+//     margin: 8px;
+//     padding: 12px;
+//     border-radius: 16px;
+//     // box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.24);
+//     border: 1px solid rgba(0, 0, 0, 0.24);
+//     // border-style: dashed;
+//     background-color: white;
+// }
 
-.row {
+.set {
     display: flex;
     align-content: flex-start;
     flex-direction: row;
@@ -137,7 +137,9 @@ button {
     // justify-content: flex-end;
 }
 
-#button-new-row {
+#button-new-set {
+    align-self: center;
+    
     display: flex;
     align-items: center;
     justify-content: center;
@@ -193,4 +195,8 @@ button {
         border-color: red;
         color: red;
     }
+}
+
+#hud {
+    flex-direction: column;
 }

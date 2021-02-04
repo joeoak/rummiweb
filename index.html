@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>rummikub.io</title>
+    <link rel="icon" href="./favicon.ico"/>
+    <title>rummikub</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/styles.css">
@@ -11,22 +12,18 @@
 <body>
     <div id="canvas">
         <div id="player">
-            <div id="game-title">rummiweb.io</div>
-            <div id="player-title">null</div>
+            <div id="game-title">rummiweb</div>
+            <div id="player-title"></div>
             <div id="player-rack"></div>
             <div id="player-hand"></div>
-            <div id="hud">null</div>
-            <div id="player-controls">
-                <!-- <button id="button-draw" onclick="drawCard()">draw</button> -->
-                <button id="button-next-turn" onclick="advanceTurn()">next turn</button>
-                <!-- <button id="button-reset">reset</button> -->
-            </div>
+            <div id="hud"></div>
+            <div id="player-controls"></div>
         </div>
         <div id="board">
-            <div id="board-rows"></div>
+            <div id="board-sets"></div>
         </div>
     </div>
 
-    <script src="./js/scripts.js"></script>
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>
