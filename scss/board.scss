@@ -1,0 +1,60 @@
+#board {
+    flex-grow: 1;
+
+    display: flex;
+    align-content: flex-start;
+    flex-direction: column;
+    overflow-y: scroll;
+    padding: var(--board-padding)
+}
+
+#board-sets {
+    display: flex;
+    align-content: center;
+    align-items: stretch;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    height: 100%;
+}
+
+.set {
+    display: flex;
+    align-content: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: var(--set-max-width); // width of 7 cards
+    margin: var(--set-margin);
+    padding: var(--set-padding);
+    border-radius: var(--set-border-radius);
+    box-shadow: 0 0 0 1px var(--set-border-color-rest);
+
+    &:focus, &:hover {
+        box-shadow: 0 0 0 2px var(--set-border-color-hover);
+    }
+
+    &.invalid {
+        box-shadow: 0 0 0 1px var(--set-border-color-invalid);
+
+        &:focus, &:hover {
+            box-shadow: 0 0 0 2px var(--set-border-color-invalid);
+        }
+    }
+}
+
+#button-new-set {
+    align-self: center;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--button-new-set-width);
+    height: var(--button-new-set-height);
+    margin: var(--set-margin);
+    border-radius: var(--set-border-radius);
+    box-shadow: 0 0 0 1px var(--set-border-color-rest);
+
+    &:focus, &:hover {
+        box-shadow: 0 0 0 2px var(--set-border-color-hover);
+    }
+}

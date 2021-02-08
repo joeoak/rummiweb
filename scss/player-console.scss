@@ -1,0 +1,65 @@
+#player-console {
+    flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+    width: var(--player-console-width); // default width
+    min-width: var(--player-console-min-width); // width of 4 cards
+    max-width: var(--player-console-max-width); // width of 8 cards
+    box-shadow: 1px 0 0 var(--player-console-border-color);
+    background-color: white;
+    overflow-y: scroll;
+    resize: horizontal;
+
+    & > * {
+        display: flex;
+        align-content: flex-start;
+        flex-wrap: wrap;
+        padding: var(--player-console-padding);
+        box-shadow: 0 1px 0 0 var(--player-console-border-color);
+
+        &:last-child {
+            box-shadow: none;
+        }
+    }
+}
+
+#player-console-rack {
+    flex-grow: 1;
+
+    overflow-y: scroll;
+}
+
+#player-console-hand {
+    flex-grow: 0;
+}
+
+#scoreboard {
+    flex-direction: column;
+}
+
+#player-console-buttons {
+    flex-grow: 0;
+
+    justify-content: flex-end;
+}
+
+.player-console-button {
+    display: flex;
+    align-items: center;
+    margin: var(--player-console-button-margin);
+    padding: var(--player-console-button-padding);
+    border-radius: var(--player-console-button-border-radius);
+    box-shadow: 0 0 0 2px var(--player-console-button-border-color-rest);
+    color: black;
+
+    &.enabled:focus, &.enabled:hover {
+        color: var(--player-console-button-color-hover);
+        background-color: var(--player-console-button-background-hover);
+    }
+
+    &.disabled {
+        cursor: inherit;
+        opacity: var(--player-console-button-opacity-disabled);
+    }
+}

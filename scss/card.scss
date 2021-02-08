@@ -1,0 +1,85 @@
+.card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--card-width);
+    height: var(--card-height);
+    margin: var(--card-margin);
+    border-radius: var(--card-border-radius);
+    background: none;
+    user-select: none;
+
+    &.joker {
+        color: var(--joker-color-rest);
+        background-color: var(--joker-background-rest);
+
+        &.held {
+            box-shadow: 0 0 0 2px var(--joker-border-rest);
+        }
+
+        &:focus, &:hover {
+            color: var(--joker-color-hover);
+            background-color: var(--joker-background-hover);
+        }
+    }
+
+    &.color0 {
+        color: var(--color0-color-rest);
+        background-color: var(--color0-background-rest);
+
+        &.held {
+            box-shadow: 0 0 0 2px var(--color0-border-rest);
+        }
+
+        &:focus, &:hover {
+            color: var(--color0-color-hover);
+            background-color: var(--color0-background-hover);
+        }
+    }
+
+    &.color1 {
+        color: var(--color1-color-rest);
+        background-color: var(--color1-background-rest);
+
+        &.held {
+            box-shadow: 0 0 0 2px var(--color1-border-rest);
+        }
+
+        &:focus, &:hover {
+            color: var(--color1-color-hover);
+            background-color: var(--color1-background-hover);
+        }
+    }
+
+    &.color2 {
+        color: var(--color2-color-rest);
+        background-color: var(--color2-background-rest);
+
+        &.held {
+            box-shadow: 0 0 0 2px var(--color2-border-rest);
+        }
+
+        &:focus, &:hover {
+            color: var(--color2-color-hover);
+            background-color: var(--color2-background-hover);
+        }
+    }
+
+    &.color3 {
+        color: var(--color3-color-rest);
+        background-color: var(--color3-background-rest);
+
+        &.held {
+            box-shadow: 0 0 0 2px var(--color3-border-rest);
+        }
+
+        &:focus, &:hover {
+            color: var(--color3-color-hover);
+            background-color: var(--color3-background-hover);
+        }
+    }
+
+    &:focus, &:hover {
+        transform: rotate(5.625deg);
+    }
+}

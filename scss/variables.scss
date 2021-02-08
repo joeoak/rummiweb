@@ -1,0 +1,73 @@
+:root {
+    --base-unit: 8px;
+    --font-family: "Roboto Mono", "Helvetica", "Arial", "sans-serif";
+}
+
+:root {
+    --board-padding: 2rem;
+    
+    --button-new-set-width: calc(var(--card-total-width) + (var(--set-padding) * 2));
+    --button-new-set-height: var(--button-new-set-width);
+
+    --card-width: 6rem;
+    --card-height: var(--card-width);
+    --card-margin: 0.5rem;
+    --card-total-width: calc(var(--card-width) + (var(--card-margin) * 2));
+    --card-border-radius: 1rem;
+
+    --player-console-width: calc((var(--card-total-width) * 6) + (var(--player-console-padding) * 2));
+    --player-console-min-width: calc((var(--card-total-width) * 4) + (var(--player-console-padding) * 2));
+    --player-console-max-width: calc((var(--card-total-width) * 8) + (var(--player-console-padding) * 2));
+    --player-console-padding: 2rem;
+    --player-console-border-color: rgba(0, 0, 0, 0.24);
+
+    --player-console-button-margin: 0.5rem;
+    --player-console-button-padding: 1rem 1.5rem;
+    --player-console-button-border-color-rest: black;
+    --player-console-button-border-radius: 1rem;
+    --player-console-button-color-rest: black;
+    --player-console-button-color-hover: white;
+    --player-console-button-background-rest: none;
+    --player-console-button-background-hover: black;
+    --player-console-button-opacity-disabled: 0.3;
+
+    --set-max-width: calc((var(--card-total-width) * 7) + (var(--set-padding) * 2));
+    --set-margin: 1rem;
+    --set-padding: 2rem;
+    --set-border-color-rest: rgba(0, 0, 0, 0.24);
+    --set-border-color-hover: black;
+    --set-border-color-invalid: red;
+    --set-border-radius: 2rem;
+}
+
+:root {
+    --color0-color-rest: red;
+    --color0-color-hover: white;
+    --color0-background-rest: rgba(255, 0, 0, 0.24);
+    --color0-background-hover: red;
+    --color0-border-rest: red;
+
+    --color1-color-rest: orange;
+    --color1-color-hover: white;
+    --color1-background-rest: rgba(255, 165, 0, 0.24);
+    --color1-background-hover: orange;
+    --color1-border-rest: orange;
+
+    --color2-color-rest: green;
+    --color2-color-hover: white;
+    --color2-background-rest: rgba(0, 255, 0, 0.24);
+    --color2-background-hover: green;
+    --color2-border-rest: green;
+
+    --color3-color-rest: blue;
+    --color3-color-hover: white;
+    --color3-background-rest: rgba(0, 0, 255, 0.24);
+    --color3-background-hover: blue;
+    --color3-border-rest: blue;
+
+    --joker-color-rest: black;
+    --joker-color-hover: white;
+    --joker-background-rest: rgba(0, 0, 0, 0.24);
+    --joker-background-hover: black;
+    --joker-border-rest: black;
+}

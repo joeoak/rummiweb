@@ -9,7 +9,7 @@ function Card(color, id, num, type, onClickFn)
 
     this.render = (onClickFn) =>
     {
-        let newCard = document.createElement('div');
+        let newCard = document.createElement('button');
         newCard.id = this.id;
         newCard.classList.add('card');
         newCard.onclick = (e) => onClickFn(e);

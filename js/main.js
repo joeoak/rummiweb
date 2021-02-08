@@ -64,7 +64,7 @@ const returnPlayerRack = () =>
 
 const initiateDeck = (deck) => 
 {   
-    const colorArr = ['black', 'blue', 'orange', 'red'];
+    const colorArr = ['color0', 'color1', 'color2', 'color3'];
     const seriesArr = ['a', 'b'];
 
     seriesArr.forEach(series =>
@@ -103,10 +103,10 @@ const drawCanvas = () =>
 {
     // clear canvas
     Node.boardSets.innerHTML = '';
-    Node.hud.innerHTML = '';
-    Node.playerRack.innerHTML = '';
-    Node.playerHand.innerHTML = '';
-    Node.playerControls.innerHTML = '';
+    Node.scoreboard.innerHTML = '';
+    Node.playerConsoleRack.innerHTML = '';
+    Node.playerConsoleHand.innerHTML = '';
+    Node.playerConsoleButtons.innerHTML = '';
 
     // splice empty sets
     board.forEach((set, index) =>
@@ -133,7 +133,7 @@ const drawCanvas = () =>
     // draw sets
     board.forEach(set =>
     {
-        let newSet = document.createElement('div');
+        let newSet = document.createElement('button');
         newSet.id = set.id;
         newSet.className = 'set';
 
@@ -162,30 +162,41 @@ const drawCanvas = () =>
     // render player hand
     playerHand.forEach(card =>
     {
-        Node.playerHand.appendChild(card.render(selectCard));
+        Node.playerConsoleHand.appendChild(card.render(selectCard));
     });
 
     // render player rack
     returnPlayerRack().cards.forEach(card =>
     {
-        Node.playerRack.appendChild(card.render(selectCard));
+        Node.playerConsoleRack.appendChild(card.render(selectCard));
     })
 
-    // render hud content
-    Node.playerTitle.innerHTML = `${returnPlayerRack().name}`;
-    Node.hud.innerHTML = `<div>turn: ${turnCounter}</div>`;
+    // render player console
+    Node.playerConsoleTitle.innerHTML = `${returnPlayerRack().name}'s turn`;
+    // Node.scoreboard.innerHTML = `<div>turn: ${turnCounter}</div>`;
 
     for (let i = 0; i < playerCount; i++)
     {
-        Node.hud.innerHTML += `<div>${playerRacks[i].name}: ${playerRacks[i].cards.length}</div>`;
+        Node.scoreboard.innerHTML += `<div>${playerRacks[i].name}: ${playerRacks[i].cards.length}</div>`;
     }
 
     // render next turn button
     let nextButton = document.createElement('button');
     nextButton.id = 'button-next-turn'
+    nextButton.classList.add('player-console-button');
     nextButton.onclick = () => advanceTurn();
     nextButton.innerHTML += 'next turn';
-    Node.playerControls.appendChild(nextButton);
+
+    if (isBoardValid)
+    {
+        nextButton.classList.add('enabled');
+    }
+    else
+    {
+        nextButton.classList.add('disabled');
+    }
+
+    Node.playerConsoleButtons.appendChild(nextButton);
 }
 
 /* events */
@@ -243,7 +254,7 @@ const selectCard = (e) =>
     let targetParent = e.path[1];
     let targetCard;
 
-    if (targetParent.id === 'player-rack')
+    if (targetParent.id === 'player-console-rack')
     {
         returnPlayerRack().cards.forEach((card, index) =>
         {
@@ -256,7 +267,7 @@ const selectCard = (e) =>
         targetCard.location = 'player-hand';
         playerHand.push(targetCard);
     }
-    else if (targetParent.id === 'player-hand')
+    else if (targetParent.id === 'player-console-hand')
     {
         playerHand.forEach((card, index) =>
         {

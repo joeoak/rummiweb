@@ -1,0 +1,16 @@
+body {
+    font-family: var(--font-family);
+    font-size: 2rem;
+    line-height: 1.5;
+}
+
+button {
+    font-family: var(--font-family);
+    font-size: 2rem;
+    line-height: 1.5;
+
+     &.card, &#button-new-set {
+        font-size: 3rem;
+        font-weight: 700;
+    }
+}

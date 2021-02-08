@@ -1,8 +1,8 @@
 let boardSets = document.querySelector('#board-sets'),
-    hud = document.querySelector('#hud'),
-    playerControls = document.querySelector('#player-controls'),
-    playerHand = document.querySelector('#player-hand'),
-    playerRack = document.querySelector('#player-rack'),
-    playerTitle = document.querySelector('#player-title');
+    playerConsoleButtons = document.querySelector('#player-console-buttons'),
+    playerConsoleHand = document.querySelector('#player-console-hand'),
+    playerConsoleRack = document.querySelector('#player-console-rack'),
+    playerConsoleTitle = document.querySelector('#player-console-title'),
+    scoreboard = document.querySelector('#scoreboard');
 
-export { boardSets, hud, playerControls, playerHand, playerRack, playerTitle }
+export { boardSets, playerConsoleButtons, playerConsoleHand, playerConsoleRack, playerConsoleTitle, scoreboard }
