@@ -5,7 +5,7 @@ let deck = new Array(),
 
 let setIds = new Array();
 
-let playerCount = 4,
+let playerCount = 2,
     turnCounter = 1;
 
 import { Card, PlayerRack, Set } from './modules/classes.js';
@@ -87,7 +87,7 @@ const distributeCards = () =>
     {
         let rack = new Array();
 
-        for (let j = 0; j < 14; j++)
+        for (let j = 0; j < 50; j++)
         {
             let r = Math.floor(Math.random() * deck.length);
             let targetCard = deck.splice(r, 1)[0];
@@ -95,7 +95,7 @@ const distributeCards = () =>
             rack.push(targetCard);
         }
 
-        playerRacks.push(new PlayerRack(`player ${i}`, rack));
+        playerRacks.push(new PlayerRack(rack, `Player ${i}`, i - 1));
     }
 }
 
@@ -172,12 +172,29 @@ const drawCanvas = () =>
     })
 
     // render player console
-    Node.playerConsoleTitle.innerHTML = `${returnPlayerRack().name}'s turn`;
+    Node.playerConsoleHeader.innerHTML = `${returnPlayerRack().name}'s turn`;
     // Node.scoreboard.innerHTML = `<div>turn: ${turnCounter}</div>`;
 
     for (let i = 0; i < playerCount; i++)
     {
-        Node.scoreboard.innerHTML += `<div>${playerRacks[i].name}: ${playerRacks[i].cards.length}</div>`;
+        let playerScore = document.createElement('div');
+        playerScore.classList.add('scoreboard-item');
+
+        if (i === returnPlayerRack().index)
+        {
+            playerScore.classList.add('selected');
+            playerScore.innerHTML = 
+                `<div class="scoreboard-item-player-name">👉 ${playerRacks[i].name}</div>
+                 <div class="scoreboard-item-player-score">${playerRacks[i].cards.length}</div>`;
+        }
+        else
+        {
+            playerScore.innerHTML = 
+                `<div class="scoreboard-item-player-name">${playerRacks[i].name}</div>
+                 <div class="scoreboard-item-player-score">${playerRacks[i].cards.length}</div>`;
+        }
+        
+        Node.scoreboard.appendChild(playerScore);
     }
 
     // render next turn button
@@ -185,7 +202,7 @@ const drawCanvas = () =>
     nextButton.id = 'button-next-turn'
     nextButton.classList.add('player-console-button');
     nextButton.onclick = () => advanceTurn();
-    nextButton.innerHTML += 'next turn';
+    nextButton.innerHTML += 'Next turn';
 
     if (isBoardValid)
     {
@@ -203,7 +220,7 @@ const drawCanvas = () =>
 
 const addGroup = () =>
 {
-    board.push(new Set(`set-${Utility.generateId(setIds)}`, playerHand.splice(0, playerHand.length)));
+    board.push(new Set(playerHand.splice(0, playerHand.length), `set-${Utility.generateId(setIds)}`));
     drawCanvas();
 }
 

@@ -14,6 +14,9 @@ button {
 
 :root {
   --base-unit: 8px;
+  --border-width-rest: 1px;
+  --border-width-hover: 2px;
+  --border-width-selected: 2px;
   --font-family: "Roboto Mono", "Helvetica", "Arial", "sans-serif";
 }
 
@@ -26,6 +29,7 @@ button {
   --card-margin: 0.5rem;
   --card-total-width: calc(var(--card-width) + (var(--card-margin) * 2));
   --card-border-radius: 1rem;
+  --card-transform-rotate: rotate(5.625deg);
   --player-console-width: calc((var(--card-total-width) * 6) + (var(--player-console-padding) * 2));
   --player-console-min-width: calc((var(--card-total-width) * 4) + (var(--player-console-padding) * 2));
   --player-console-max-width: calc((var(--card-total-width) * 8) + (var(--player-console-padding) * 2));
@@ -34,6 +38,7 @@ button {
   --player-console-button-margin: 0.5rem;
   --player-console-button-padding: 1rem 1.5rem;
   --player-console-button-border-color-rest: black;
+  --player-console-button-border-width-rest: 2px;
   --player-console-button-border-radius: 1rem;
   --player-console-button-color-rest: black;
   --player-console-button-color-hover: white;
@@ -110,7 +115,7 @@ button.card, button#button-new-set {
   width: var(--player-console-width);
   min-width: var(--player-console-min-width);
   max-width: var(--player-console-max-width);
-  box-shadow: 1px 0 0 var(--player-console-border-color);
+  box-shadow: var(--border-width-rest) 0 0 0 var(--player-console-border-color);
   background-color: white;
   overflow-y: scroll;
   resize: horizontal;
@@ -120,7 +125,7 @@ button.card, button#button-new-set {
   align-content: flex-start;
   flex-wrap: wrap;
   padding: var(--player-console-padding);
-  box-shadow: 0 1px 0 0 var(--player-console-border-color);
+  box-shadow: 0 var(--border-width-rest) 0 0 var(--player-console-border-color);
 }
 #player-console > *:last-child {
   box-shadow: none;
@@ -136,7 +141,17 @@ button.card, button#button-new-set {
 }
 
 #scoreboard {
+  display: flex;
   flex-direction: column;
+}
+
+.scoreboard-item {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.scoreboard-item.selected {
+  font-weight: 700;
 }
 
 #player-console-buttons {
@@ -150,7 +165,7 @@ button.card, button#button-new-set {
   margin: var(--player-console-button-margin);
   padding: var(--player-console-button-padding);
   border-radius: var(--player-console-button-border-radius);
-  box-shadow: 0 0 0 2px var(--player-console-button-border-color-rest);
+  box-shadow: 0 0 0 var(--player-console-button-border-width-rest) var(--player-console-button-border-color-rest);
   color: black;
 }
 .player-console-button.enabled:focus, .player-console-button.enabled:hover {
@@ -190,13 +205,13 @@ button.card, button#button-new-set {
   margin: var(--set-margin);
   padding: var(--set-padding);
   border-radius: var(--set-border-radius);
-  box-shadow: 0 0 0 1px var(--set-border-color-rest);
+  box-shadow: 0 0 0 var(--border-width-rest) var(--set-border-color-rest);
 }
 .set:focus, .set:hover {
-  box-shadow: 0 0 0 2px var(--set-border-color-hover);
+  box-shadow: 0 0 0 var(--border-width-hover) var(--set-border-color-hover);
 }
 .set.invalid {
-  box-shadow: 0 0 0 1px var(--set-border-color-invalid);
+  box-shadow: 0 0 0 var(--border-width-rest) var(--set-border-color-invalid);
 }
 .set.invalid:focus, .set.invalid:hover {
   box-shadow: 0 0 0 2px var(--set-border-color-invalid);
@@ -211,10 +226,10 @@ button.card, button#button-new-set {
   height: var(--button-new-set-height);
   margin: var(--set-margin);
   border-radius: var(--set-border-radius);
-  box-shadow: 0 0 0 1px var(--set-border-color-rest);
+  box-shadow: 0 0 0 var(--border-width-rest) var(--set-border-color-rest);
 }
 #button-new-set:focus, #button-new-set:hover {
-  box-shadow: 0 0 0 2px var(--set-border-color-hover);
+  box-shadow: 0 0 0 var(--border-width-hover) var(--set-border-color-hover);
 }
 
 .card {
@@ -233,7 +248,7 @@ button.card, button#button-new-set {
   background-color: var(--joker-background-rest);
 }
 .card.joker.held {
-  box-shadow: 0 0 0 2px var(--joker-border-rest);
+  box-shadow: 0 0 0 var(--border-width-selected) var(--joker-border-rest);
 }
 .card.joker:focus, .card.joker:hover {
   color: var(--joker-color-hover);
@@ -244,7 +259,7 @@ button.card, button#button-new-set {
   background-color: var(--color0-background-rest);
 }
 .card.color0.held {
-  box-shadow: 0 0 0 2px var(--color0-border-rest);
+  box-shadow: 0 0 0 var(--border-width-selected) var(--color0-border-rest);
 }
 .card.color0:focus, .card.color0:hover {
   color: var(--color0-color-hover);
@@ -255,7 +270,7 @@ button.card, button#button-new-set {
   background-color: var(--color1-background-rest);
 }
 .card.color1.held {
-  box-shadow: 0 0 0 2px var(--color1-border-rest);
+  box-shadow: 0 0 0 var(--border-width-selected) var(--color1-border-rest);
 }
 .card.color1:focus, .card.color1:hover {
   color: var(--color1-color-hover);
@@ -266,7 +281,7 @@ button.card, button#button-new-set {
   background-color: var(--color2-background-rest);
 }
 .card.color2.held {
-  box-shadow: 0 0 0 2px var(--color2-border-rest);
+  box-shadow: 0 0 0 var(--border-width-selected) var(--color2-border-rest);
 }
 .card.color2:focus, .card.color2:hover {
   color: var(--color2-color-hover);
@@ -277,14 +292,14 @@ button.card, button#button-new-set {
   background-color: var(--color3-background-rest);
 }
 .card.color3.held {
-  box-shadow: 0 0 0 2px var(--color3-border-rest);
+  box-shadow: 0 0 0 var(--border-width-selected) var(--color3-border-rest);
 }
 .card.color3:focus, .card.color3:hover {
   color: var(--color3-color-hover);
   background-color: var(--color3-background-hover);
 }
 .card:focus, .card:hover {
-  transform: rotate(5.625deg);
+  transform: var(--card-transform-rotate);
 }
 
 /*# sourceMappingURL=styles.css.map */

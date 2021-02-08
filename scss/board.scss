@@ -27,14 +27,14 @@
     margin: var(--set-margin);
     padding: var(--set-padding);
     border-radius: var(--set-border-radius);
-    box-shadow: 0 0 0 1px var(--set-border-color-rest);
+    box-shadow: 0 0 0 var(--border-width-rest) var(--set-border-color-rest);
 
     &:focus, &:hover {
-        box-shadow: 0 0 0 2px var(--set-border-color-hover);
+        box-shadow: 0 0 0 var(--border-width-hover) var(--set-border-color-hover);
     }
 
     &.invalid {
-        box-shadow: 0 0 0 1px var(--set-border-color-invalid);
+        box-shadow: 0 0 0 var(--border-width-rest) var(--set-border-color-invalid);
 
         &:focus, &:hover {
             box-shadow: 0 0 0 2px var(--set-border-color-invalid);
@@ -52,9 +52,9 @@
     height: var(--button-new-set-height);
     margin: var(--set-margin);
     border-radius: var(--set-border-radius);
-    box-shadow: 0 0 0 1px var(--set-border-color-rest);
+    box-shadow: 0 0 0 var(--border-width-rest) var(--set-border-color-rest);
 
     &:focus, &:hover {
-        box-shadow: 0 0 0 2px var(--set-border-color-hover);
+        box-shadow: 0 0 0 var(--border-width-hover) var(--set-border-color-hover);
     }
 }

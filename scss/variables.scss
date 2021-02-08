@@ -1,5 +1,10 @@
 :root {
     --base-unit: 8px;
+
+    --border-width-rest: 1px;
+    --border-width-hover: 2px;
+    --border-width-selected: 2px;
+    
     --font-family: "Roboto Mono", "Helvetica", "Arial", "sans-serif";
 }
 
@@ -14,6 +19,7 @@
     --card-margin: 0.5rem;
     --card-total-width: calc(var(--card-width) + (var(--card-margin) * 2));
     --card-border-radius: 1rem;
+    --card-transform-rotate: rotate(5.625deg);
 
     --player-console-width: calc((var(--card-total-width) * 6) + (var(--player-console-padding) * 2));
     --player-console-min-width: calc((var(--card-total-width) * 4) + (var(--player-console-padding) * 2));
@@ -24,6 +30,7 @@
     --player-console-button-margin: 0.5rem;
     --player-console-button-padding: 1rem 1.5rem;
     --player-console-button-border-color-rest: black;
+    --player-console-button-border-width-rest: 2px;
     --player-console-button-border-radius: 1rem;
     --player-console-button-color-rest: black;
     --player-console-button-color-hover: white;

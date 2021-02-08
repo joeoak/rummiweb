@@ -1,7 +1,7 @@
 let isBoardValid,
     isPlayerPlacedCards;
 
-const checkIfPlayerPlacedCards = (board) =>
+const checkIfPlayerPlacedCards = board =>
 {
     isPlayerPlacedCards = false; // assume false to start
 
@@ -17,82 +17,151 @@ const checkIfPlayerPlacedCards = (board) =>
     });
 }
 
-const isAllEqual = (arr) =>
+const isAllEqual = set =>
 {
-    return arr.every(val => val.num === arr[0].num);
+    let newArr = new Array();
+
+    if (isContainsJoker(set).validate === false)
+    {
+        newArr = set.cards;
+    }
+    else
+    {
+        set.cards.forEach(card =>
+        {
+            if (card.type !== 'joker') { newArr.push(card) }; // ignore jokers
+        })
+    }
+
+    return newArr.every(card => card.num === newArr[0].num);
 }
 
-const isConsecutive = (arr) =>
+const isConsecutive = (set, type) =>
 {
     let sequence = new Array(),
-        differences = new Array();
+        differences = new Array(),
+        errorCount = 0;
 
-    arr.forEach(val =>
+    // build new array of numbers. ignore jokers
+    set.cards.forEach(card =>
     {
-        sequence.push(val.num); // build new array of numbers
+        if (card.num != null) { sequence.push(card.num) };
     })
 
-    sequence.sort((a, b) =>
-    {
-        return a - b; // sort new array of numbers
-    });
+    sequence.sort((a, b) => { return a - b }); // sort new array of numbers
 
+    // build new array of differences
     sequence.forEach((val, index) =>
     {
         if (index > 0)
         {
-            differences.push(val - sequence[index - 1]); // build new array of differences
+            differences.push(val - sequence[index - 1]);
         }
     });
 
-    return differences.every(val => val === 1); // check if any differences > 1
+    // count errors
+    differences.forEach(difference =>
+    {
+        errorCount += difference - 1;
+    })
+
+    return {
+        validate: differences.every(val => val === 1),
+        errorCount: errorCount,
+    }
 }
 
-const isDifferentColors = (arr) =>
+const isDifferentColors = set =>
 {
+    let newArr = new Array();
+
+    if (isContainsJoker(set).validate === false)
+    {
+        newArr = set.cards;
+    }
+    else
+    {
+        set.cards.forEach(card =>
+        {
+            if (card.type !== 'joker') { newArr.push(card) }; // ignore jokers
+        })
+    }
+
     // count amounts of each color
     let counter = {};
-    arr.forEach(val =>
+    newArr.forEach(card =>
     {
-        counter[val.color] = (counter[val.color] || 0) + 1;
+        counter[card.color] = (counter[card.color] || 0) + 1;
     });
 
     return Object.values(counter).every(val => val <= 1); // check if any amount > 1
 }
 
-const isSameColors = (arr) =>
+const isSameColors = set =>
 {
-    return arr.every(val => val.color === arr[0].color);
+    let newArr = new Array();
+
+    if (isContainsJoker(set).validate === false)
+    {
+        newArr = set.cards;
+    }
+    else
+    {
+        set.cards.forEach(card =>
+        {
+            if (card.type !== 'joker') { newArr.push(card) }; // ignore jokers
+        })
+    }
+
+    return newArr.every(card => card.color === newArr[0].color);
 }
 
-const verifySets = (board) =>
+const isContainsJoker = set =>
+{
+    let jokerCount = 0;
+
+    set.cards.forEach(card =>
+    {
+        if (card.type === 'joker') { jokerCount += 1 };
+    });
+
+    return {
+        validate: set.cards.some(card => card.type === 'joker'),
+        jokerCount: jokerCount,
+    }
+}
+
+const verifySets = board =>
 {
     isBoardValid = true; // assume true to start
 
-    board.forEach((set) =>
+    board.forEach(set =>
     {
-        if (set.cards.length < 3)
+        if (set.cards.length >= 3)
         {
-            set.isValid = false;
-            isBoardValid = false;
-        }
-        else
-        {
-            if (isDifferentColors(set.cards)) // if different colors, one of each
+            if (isDifferentColors(set)) // if different colors (one of each)
             {
-                if (isAllEqual(set.cards)) // if all same numbers
+                if (isAllEqual(set) && set.cards.length <= 4) // if all same numbers
                 {
                     set.isValid = true;
                 }
-                else
+                else // if not all the same numbers
                 {
                     set.isValid = false;
                     isBoardValid = false;
                 }
             }
-            else if (isSameColors(set.cards)) // if all same colors
+            else if (isSameColors(set)) // if all same colors
             {
-                if (isConsecutive(set.cards)) // if consecutive
+                if (isContainsJoker(set).jokerCount === 0 && isConsecutive(set).errorCount === 0) // if consecutive
+                {
+                    set.isValid = true;
+                }
+                else if (isContainsJoker(set).jokerCount === 1 && isConsecutive(set).errorCount <= 1)
+                {
+                    set.isValid = true;
+                }
+                else if (isContainsJoker(set).jokerCount === 2 && isConsecutive(set).errorCount <= 2)
                 {
                     set.isValid = true;
                 }
@@ -107,6 +176,11 @@ const verifySets = (board) =>
                 set.isValid = false;
                 isBoardValid = false;
             }
+        }
+        else // if a set contains less than 3 cards
+        {
+            set.isValid = false;
+            isBoardValid = false;
         }
     });
 }

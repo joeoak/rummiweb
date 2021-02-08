@@ -14,7 +14,7 @@
         background-color: var(--joker-background-rest);
 
         &.held {
-            box-shadow: 0 0 0 2px var(--joker-border-rest);
+            box-shadow: 0 0 0 var(--border-width-selected) var(--joker-border-rest);
         }
 
         &:focus, &:hover {
@@ -28,7 +28,7 @@
         background-color: var(--color0-background-rest);
 
         &.held {
-            box-shadow: 0 0 0 2px var(--color0-border-rest);
+            box-shadow: 0 0 0 var(--border-width-selected) var(--color0-border-rest);
         }
 
         &:focus, &:hover {
@@ -42,7 +42,7 @@
         background-color: var(--color1-background-rest);
 
         &.held {
-            box-shadow: 0 0 0 2px var(--color1-border-rest);
+            box-shadow: 0 0 0 var(--border-width-selected) var(--color1-border-rest);
         }
 
         &:focus, &:hover {
@@ -56,7 +56,7 @@
         background-color: var(--color2-background-rest);
 
         &.held {
-            box-shadow: 0 0 0 2px var(--color2-border-rest);
+            box-shadow: 0 0 0 var(--border-width-selected) var(--color2-border-rest);
         }
 
         &:focus, &:hover {
@@ -70,7 +70,7 @@
         background-color: var(--color3-background-rest);
 
         &.held {
-            box-shadow: 0 0 0 2px var(--color3-border-rest);
+            box-shadow: 0 0 0 var(--border-width-selected) var(--color3-border-rest);
         }
 
         &:focus, &:hover {
@@ -80,6 +80,6 @@
     }
 
     &:focus, &:hover {
-        transform: rotate(5.625deg);
+        transform: var(--card-transform-rotate);
     }
 }

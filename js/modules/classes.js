@@ -1,4 +1,4 @@
-function Card(color, id, num, type, onClickFn)
+function Card(color, id, num, type)
 {
     this.color = color;
     this.isHeld = false;
@@ -34,17 +34,18 @@ function Card(color, id, num, type, onClickFn)
     }
 }
 
-function PlayerRack(name, cards)
+function PlayerRack(cards, name, index)
 {
-    this.name = name;
     this.cards = cards;
+    this.name = name;
+    this.index = index;
 }
 
-function Set(id, cards)
+function Set(cards, id)
 {
+    this.cards = cards; 
     this.id = id;
     this.isValid = false;
-    this.cards = cards;   
 }
 
 export { Card, PlayerRack, Set };
