@@ -139,9 +139,9 @@ const verifySets = board =>
     {
         if (set.cards.length >= 3)
         {
-            if (isDifferentColors(set)) // if different colors (one of each)
+            if (isDifferentColors(set) && set.cards.length <= 4) // if different colors (one of each)
             {
-                if (isAllEqual(set) && set.cards.length <= 4) // if all same numbers
+                if (isAllEqual(set)) // if all same numbers
                 {
                     set.isValid = true;
                 }
@@ -151,7 +151,7 @@ const verifySets = board =>
                     isBoardValid = false;
                 }
             }
-            else if (isSameColors(set)) // if all same colors
+            else if (isSameColors(set) && set.cards.length <= 13) // if all same colors
             {
                 if (isContainsJoker(set).jokerCount === 0 && isConsecutive(set).errorCount === 0) // if consecutive
                 {

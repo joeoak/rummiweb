@@ -1,21 +1,28 @@
+// todo: add 'Arr' to variable names
 let deck = new Array(),
     board = new Array(),
     playerHand = new Array(),
     playerRacks = new Array();
 
-let setIds = new Array();
+let setIds = new Array(); // todo: add 'Arr' to variable names
 
+// todo: wrap these within an object
 let playerCount = 2,
-    turnCounter = 1;
+    turnCounter = 1,
+    startingAmount = 14;
 
 import { Card, PlayerRack, Set } from './modules/classes.js';
 import * as Node from './modules/nodes.js';
 import * as Utility from './modules/utilities.js';
 import { isBoardValid, isPlayerPlacedCards, checkIfPlayerPlacedCards, verifySets } from './modules/verification.js';
 
-const returnPlayerRack = () =>
+const returnPlayerRack = () => // todo: "returnCurrentPlayerRack"?
 {
-    if (playerCount === 2)
+    if (playerCount === 1)
+    {
+        return playerRacks[0];
+    }
+    else if (playerCount === 2)
     {
         if (turnCounter % playerCount === 0)
         {
@@ -71,7 +78,7 @@ const initiateDeck = (deck) =>
     {
         colorArr.forEach(color =>
         {
-            for (let num = 1; num <= 13; num++) // num
+            for (let num = 1; num <= 13; num++)
             {
                 deck.push(new Card(color, `${color}-${num}-${series}`, num, 'num'));
             }
@@ -85,9 +92,9 @@ const distributeCards = () =>
 {
     for (let i = 1; i <= playerCount; i++)
     {
-        let rack = new Array();
+        let rack = new Array(); // todo: add 'Arr' to variable names
 
-        for (let j = 0; j < 50; j++)
+        for (let j = 0; j < startingAmount; j++)
         {
             let r = Math.floor(Math.random() * deck.length);
             let targetCard = deck.splice(r, 1)[0];
@@ -99,6 +106,8 @@ const distributeCards = () =>
     }
 }
 
+/* render */
+
 const drawCanvas = () =>
 {
     // clear canvas
@@ -108,11 +117,20 @@ const drawCanvas = () =>
     Node.playerConsoleHand.innerHTML = '';
     Node.playerConsoleButtons.innerHTML = '';
 
-    // splice empty sets
+    // remove empty sets
     board.forEach((set, index) =>
     {
         if (set.cards.length === 0)
         {
+            // remove id from setIds
+            setIds.forEach((id, index) =>
+            {
+                if (set.id === `set-${id}`)
+                {
+                    setIds.splice(index, 1);
+                }
+            })
+
             board.splice(index, 1);
         };
     });
@@ -122,10 +140,7 @@ const drawCanvas = () =>
     checkIfPlayerPlacedCards(board);
 
     // sort board cards
-    board.forEach(set =>
-    {
-        Utility.sortByColorAndNumber(set.cards);
-    });
+    board.forEach(set => Utility.sortByColorAndNumber(set.cards));
 
     // sort player rack
     Utility.sortByColorAndNumber(returnPlayerRack().cards);
@@ -160,20 +175,18 @@ const drawCanvas = () =>
     Node.boardSets.appendChild(addSetButton);
 
     // render player hand
-    playerHand.forEach(card =>
-    {
-        Node.playerConsoleHand.appendChild(card.render(selectCard));
-    });
+    playerHand.forEach(card => Node.playerConsoleHand.appendChild(card.render(selectCard)));
 
     // render player rack
-    returnPlayerRack().cards.forEach(card =>
-    {
-        Node.playerConsoleRack.appendChild(card.render(selectCard));
-    })
+    returnPlayerRack().cards.forEach(card => Node.playerConsoleRack.appendChild(card.render(selectCard)));
 
     // render player console
     Node.playerConsoleHeader.innerHTML = `${returnPlayerRack().name}'s turn`;
-    // Node.scoreboard.innerHTML = `<div>turn: ${turnCounter}</div>`;
+    Node.scoreboard.innerHTML =
+        `<div class="scoreboard-item">
+            <div class="scoreboard-item-turn-title">Turn</div>
+            <div class="scoreboard-item-turn-number">${turnCounter}</div>
+        </div>`;
 
     for (let i = 0; i < playerCount; i++)
     {
@@ -204,15 +217,15 @@ const drawCanvas = () =>
     nextButton.onclick = () => advanceTurn();
     nextButton.innerHTML += 'Next turn';
 
-    if (isBoardValid)
-    {
-        nextButton.classList.add('enabled');
-    }
-    else
+    if (isBoardValid === false || playerHand.length > 0)
     {
         nextButton.classList.add('disabled');
     }
-
+    else
+    {
+        nextButton.classList.add('enabled');
+    }
+    
     Node.playerConsoleButtons.appendChild(nextButton);
 }
 
@@ -247,7 +260,15 @@ const advanceTurn = () =>
             drawCard();
         }
 
-        turnCounter += 1;
+        if (returnPlayerRack().cards.length === 0)
+        {
+            alert('Game over!');
+        }
+        else
+        {
+            turnCounter += 1;
+        }
+
         drawCanvas();
     }
 }
@@ -260,13 +281,14 @@ const drawCard = () =>
         let targetCard = deck.splice(r, 1)[0];
         targetCard.isHeld = true;
         returnPlayerRack().cards.push(targetCard);
-        drawCanvas();
     }
 }
 
 const selectCard = (e) => 
 {
-    e.stopPropagation(); // prevent player from triggering set underneath card
+    // todo: see if card.location is being used
+
+    e.stopPropagation(); // prevents player from triggering set event underneath card
 
     let targetParent = e.path[1];
     let targetCard;
@@ -312,8 +334,16 @@ const selectCard = (e) =>
             }
         });
 
-        targetCard.location = 'player-hand';
-        playerHand.push(targetCard);
+        if (targetCard.isHeld)
+        {
+            targetCard.location = 'player-rack';
+            returnPlayerRack().cards.push(targetCard);
+        }
+        else
+        {
+            targetCard.location = 'player-hand';
+            playerHand.push(targetCard);
+        }
     }
 
     drawCanvas();
@@ -337,6 +367,8 @@ const selectSet = (e) =>
 
     drawCanvas();
 }
+
+/* init */
 
 initiateDeck(deck);
 distributeCards();

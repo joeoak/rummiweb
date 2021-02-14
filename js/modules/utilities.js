@@ -5,13 +5,13 @@ const generateId = arr =>
 
     if (arr.includes(r))
     {
-        if (arr.length < range)
+        if (arr.length <= range)
         {
             return generateId(arr);
         }
         else
         {
-            console.log('range met');
+            console.log('range exceeded');
             return;
         }
     }
@@ -26,7 +26,8 @@ const sortByColorAndNumber = arr =>
 {
     arr.forEach(() =>
     {
-        arr.sort(function(a, b) // sort by color, alphabetically
+        // sort by color (alphabetically)
+        arr.sort(function(a, b)
         {
             if (a.color < b.color)
             {
@@ -40,7 +41,8 @@ const sortByColorAndNumber = arr =>
             return 0;
         });
 
-        arr.sort(function(a, b) // sort by number, ascending
+        // sort by number (ascending)
+        arr.sort(function(a, b)
         {
             return a.num - b.num;
         });
