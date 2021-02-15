@@ -9,7 +9,7 @@ const generateSetId = () =>
     {
         if (GameState.setIdArr.length <= range)
         {
-            return generateId(arr);
+            return generateSetId(GameState.setIdArr);
         }
         else
         {

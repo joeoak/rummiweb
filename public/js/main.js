@@ -2,12 +2,18 @@ import * as Node from './nodes.js';
 
 /* render */
 
-const renderCard = (card) =>
+const renderCard = (card, index, setId) =>
 {
     let newCard = document.createElement('button');
     newCard.classList.add('card');
     newCard.id = card.id;
-    newCard.onclick = (e) => selectCard(e);
+    newCard.dataset.index = index;
+    newCard.dataset.location = card.location;
+
+    if (GameState.currentPlayerIndex === thisPlayerIndex)
+    {
+        newCard.onclick = (e) => selectCard(e);
+    }
     
     if (card.type === 'num')
     {
@@ -18,6 +24,11 @@ const renderCard = (card) =>
     {
         newCard.classList.add(card.type);
         newCard.innerText = `🙂`;
+    }
+
+    if (card.location === 'set')
+    {
+        newCard.dataset.setId = setId;
     }
 
     if (card.isHeld && card.location != 'player-rack')
@@ -43,9 +54,9 @@ const renderBoard = () =>
 
         newSet.onclick = (e) => selectSet(e);
 
-        set.cards.forEach(card =>
+        set.cards.forEach((card, index) =>
         {
-            newSet.appendChild(renderCard(card));
+            newSet.appendChild(renderCard(card, index, set.id));
         });
 
         Node.boardSets.appendChild(newSet);
@@ -62,7 +73,7 @@ const renderBoard = () =>
 
 const renderPlayerConsole = () =>
 {
-    Node.playerConsoleHeader.innerHTML = `${GameState.currentPlayerRack.name}'s turn`;
+    Node.playerConsoleHeader.innerHTML = `${thisPlayerRack.name}`;
 
     Node.scoreboard.innerHTML =
         `<div class="scoreboard-item">
@@ -92,22 +103,32 @@ const renderPlayerConsole = () =>
         Node.scoreboard.appendChild(playerScore);
     }
 
-    let nextButton = document.createElement('button');
-    nextButton.classList.add('player-console-button');
-    nextButton.id = 'button-next-turn';
-    nextButton.innerHTML += 'Next turn';
-    nextButton.onclick = () => advanceTurn();
-
-    if (GameState.isBoardValid === false || GameState.playerHandArr.length > 0)
+    if (GameState.currentPlayerIndex === thisPlayerIndex)
     {
-        nextButton.classList.add('disabled');
+        let nextButton = document.createElement('button');
+        nextButton.classList.add('player-console-button');
+        nextButton.id = 'button-next-turn';
+        nextButton.innerHTML += 'Next turn';
+        nextButton.onclick = () => advanceTurn();
+
+        if (GameState.isValidBoard === false || GameState.playerHandArr.length > 0)
+        {
+            nextButton.classList.add('disabled');
+        }
+        else
+        {
+            nextButton.classList.add('enabled');
+        }
+        
+        Node.playerConsoleButtons.appendChild(nextButton);
     }
     else
     {
-        nextButton.classList.add('enabled');
+        let newDiv = document.createElement('div');
+        newDiv.innerText = `${GameState.playerRackArr[GameState.currentPlayerIndex].name}'s turn`;
+
+        Node.playerConsoleButtons.appendChild(newDiv);
     }
-    
-    Node.playerConsoleButtons.appendChild(nextButton);
 }
 
 const renderGame = () =>
@@ -120,16 +141,19 @@ const renderGame = () =>
 
     renderBoard();
 
-    // render player hand
-    GameState.playerHandArr.forEach(card => 
+    if (GameState.currentPlayerIndex === thisPlayerIndex)
     {
-        Node.playerConsoleHand.appendChild(renderCard(card));
-    });
+        // render player hand
+        GameState.playerHandArr.forEach((card, index) => 
+        {
+            Node.playerConsoleHand.appendChild(renderCard(card, index));
+        });
+    }
 
     // render player rack
-    GameState.currentPlayerRack.cards.forEach(card =>
+    thisPlayerRack.cards.forEach((card, index) =>
     {
-        Node.playerConsoleRack.appendChild(renderCard(card));
+        Node.playerConsoleRack.appendChild(renderCard(card, index));
     });
 
     renderPlayerConsole();
@@ -144,15 +168,16 @@ const addGroup = (e) =>
 
 const advanceTurn = (e) =>
 {
-    if (GameState.isBoardValid && GameState.playerHandArr.length <= 0)
+    if (GameState.isValidBoard &&
+        GameState.playerHandArr.length === 0)
     {
-        if (GameState.isPlayerPlacedCards === false &&
+        if (GameState.isCardsAdded === false &&
             GameState.deckArr.length > 0)
         {
             socket.emit('draw card');
         }
 
-        if (GameState.currentPlayerRack.cards.length === 0)
+        if (thisPlayerRack.cards.length === 0)
         {
             alert('Game over!');
         }
@@ -170,69 +195,37 @@ const selectCard = (e) =>
     let targetCard = new Object(
     {
         destination: '',
-        origin: '',
-        parent: e.path[1],
-        setId: '',
+        location: e.target.dataset.location,
+        setId: e.target.dataset.setId,
         id: e.target.id,
-        index: 0,
+        index: e.target.dataset.index,
+        isHeld: e.target.classList.contains('held'),
     });
 
-    if (targetCard.parent.id === 'player-console-rack')
+    if (targetCard.location === 'player-rack')
     {
-        GameState.currentPlayerRack.cards.forEach((card, index) =>
-        {
-            if (card.id === targetCard.id)
-            {
-                targetCard.destination = 'player-hand';
-                targetCard.origin = 'player-rack';
-                targetCard.index = index;
-            };
-        });
+        targetCard.destination = 'player-hand';
     }
     
-    if (targetCard.parent.id === 'player-console-hand')
+    if (targetCard.location === 'player-hand' && 
+        targetCard.isHeld)
     {
-        GameState.playerHandArr.forEach((card, index) =>
-        {
-            if (card.id === targetCard.id && 
-                card.isHeld === true)
-            {
-                targetCard.destination = 'player-rack';
-                targetCard.origin = 'player-hand';
-                targetCard.index = index;
-            }
-        });
+        targetCard.destination = 'player-rack';
     }
     
-    if (targetCard.parent.classList.contains('set'))
+    if (targetCard.location === 'set')
     {
-        GameState.boardArr.forEach(set =>
+        if (targetCard.isHeld)
         {
-            if (set.id === targetCard.parent.id)
-            {
-                set.cards.forEach((card, index) =>
-                {
-                    if (card.id === targetCard.id)
-                    {
-                        if (card.isHeld)
-                        {
-                            targetCard.destination = 'player-rack';
-                        }
-                        else
-                        {
-                            targetCard.destination = 'player-hand';
-                        }
-
-                        targetCard.origin = 'set';
-                        targetCard.setId = set.id;
-                        targetCard.index = index;
-                    }
-                });
-            }
-        });
+            targetCard.destination = 'player-rack';
+        }
+        else
+        {
+            targetCard.destination = 'player-hand';
+        }
     }
 
-    socket.emit('select card', targetCard); 
+    socket.emit('select card', targetCard);
 }
 
 const selectSet = (e) =>
@@ -246,12 +239,21 @@ const selectSet = (e) =>
 const socket = io();
 let GameState = new Object();
 
-socket.emit('game start');
+let thisPlayerIndex,
+    thisPlayerRack;
 
-socket.on('game update', message =>
+socket.on('game update', msg =>
 {
     console.log('game update!');
-    GameState = JSON.parse(message);
+    GameState = JSON.parse(msg);
     console.log(GameState);
+    thisPlayerRack = GameState.playerRackArr[thisPlayerIndex];
     renderGame();
+});
+
+socket.on('player index', msg =>
+{
+    // console.log(msg, GameState.playerRackArr);
+    thisPlayerIndex = msg;
+    // thisPlayerRack = GameState.playerRackArr[msg];
 });

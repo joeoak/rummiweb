@@ -9,8 +9,8 @@ let turnCounter = 1,
     playerCount = 2,
     currentPlayerIndex = 0;
 
-let isBoardValid,
-    isPlayerPlacedCards;
+let isValidBoard,
+    isCardsAdded;
 
 let currentPlayerRack;
 
@@ -25,6 +25,6 @@ module.exports =
     playerCount,
     currentPlayerIndex,
     currentPlayerRack,
-    isBoardValid,
-    isPlayerPlacedCards,
+    isValidBoard,
+    isCardsAdded,
 }

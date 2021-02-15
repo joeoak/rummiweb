@@ -11,11 +11,21 @@ const initiateDeck = (deckArr) =>
         {
             for (let num = 1; num <= 13; num++)
             {
-                deckArr.push(new Card(color, `${color}-${num}-${series}`, num, 'num'));
+                deckArr.push(new Card(
+                    color, 
+                    `${color}-${num}-${series}`,
+                    num,
+                    'num'
+                ));
             }
         });
 
-        deckArr.push(new Card(null, `joker-${series}`, null, 'joker'));
+        deckArr.push(new Card(
+            null,
+            `joker-${series}`,
+            null,
+            'joker'
+        ));
     });
 }
 
@@ -33,7 +43,11 @@ const distributeCards = (deckArr, playerRackArr, playerCount) =>
             newRackArr.push(targetCard);
         }
 
-        playerRackArr.push(new PlayerRack(newRackArr, `Player ${i}`, i - 1));
+        playerRackArr.push(new PlayerRack(
+            newRackArr, 
+            `Player ${i}`, 
+            i - 1)
+        );
     }
 }
 
