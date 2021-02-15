@@ -2,86 +2,85 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.Server(app);
-
 const socketio = require('socket.io');
 const io = socketio(server);
-
 const PORT = 8000;
 
 const Class = require('./classes.js');
 const Game = require('./game.js');
+const GameState = require('./game-state.js');
 const Utility = require('./utilities.js');
-
-let deckArr = new Array(),
-    boardArr = new Array(),
-    playerRackArr = new Array(),
-    playerHandArr = new Array();
-
-let setIdArr = new Array();
-
-let turnCounter = 1,
-    playerCount = 2,
-    currentPlayer = 0;
+const Verify = require('./verify.js');
 
 app.use(express.static('../public'));
-app.get('/', (request, response) => { response.sendFile('index.html') });
+app.get('/', (req, res) => { res.sendFile('index.html') });
 
 const startGame = () =>
 {
-    deckArr = [];
-    boardArr = [];
-    playerRackArr = [];
-    playerHandArr = [];
-
-    turnCounter = 1;
-    playerCount = 2;
-    currentPlayer = 0;
-
-    Game.initiateDeck(deckArr);
-    Game.distributeCards(deckArr, playerRackArr, 2);
+    GameState.deckArr = [];
+    GameState.boardArr = [];
+    GameState.playerRackArr = [];
+    GameState.playerHandArr = [];
+    GameState.turnCounter = 1;
+    GameState.playerCount = 2;
+    GameState.currentPlayerIndex = 0;
+    Game.initiateDeck(GameState.deckArr);
+    Game.distributeCards(GameState.deckArr, GameState.playerRackArr, 2);
 }
 
 const removeEmptySets = () =>
 {
-    boardArr.forEach((set, index) =>
+    GameState.boardArr.forEach((set, index) =>
     {
         if (set.cards.length === 0)
         {
             // remove id from setIds
-            setIdArr.forEach((id, index) =>
+            GameState.setIdArr.forEach((id, index) =>
             {
                 if (set.id === `set-${id}`)
                 {
-                    setIdArr.splice(index, 1);
+                    GameState.setIdArr.splice(index, 1);
                 }
             })
 
-            boardArr.splice(index, 1);
+            GameState.boardArr.splice(index, 1);
         };
     });
 }
 
 io.on('connection', socket =>
 {
-    console.log('user connected');
-
     const updateGameState = () =>
     {
+        // set all cards to isHeld = false
+        GameState.boardArr.forEach(set =>
+        {
+            set.cards.forEach(card =>
+            {
+                if (card.isHeld)
+                {
+                    card.isHeld = false;
+                }
+            });
+        });
+
+        GameState.currentPlayerRack = GameState.playerRackArr[GameState.currentPlayerIndex];
         removeEmptySets();
 
-        socket.emit(
-            'game update', 
-            JSON.stringify(
-            {
-                turnCounter,
-                playerCount,
-                currentPlayer,
-                deckArr,
-                boardArr,
-                playerRackArr,
-                playerHandArr
-            })
-        );
+        Verify.verifySets(GameState.boardArr);
+        Verify.checkIfPlayerPlacedCards(GameState.boardArr);
+
+        GameState.boardArr.forEach(set => 
+        {
+            Utility.sortByColorAndNumber(set.cards);
+        });
+
+        GameState.playerRackArr.forEach(rack => 
+        {
+            Utility.sortByColorAndNumber(rack.cards);
+        });
+
+        socket.emit('game update', JSON.stringify(GameState));
     }
 
     socket.on('game start', () =>
@@ -97,28 +96,26 @@ io.on('connection', socket =>
 
     socket.on('add group', msg =>
     {
-        boardArr.push(new Class.Set(
-            playerHandArr.splice(0, playerHandArr.length),
-            `set-${Utility.generateId(setIdArr)}`)
-        );
+        let setCards = GameState.playerHandArr.splice(0, GameState.playerHandArr.length);
+        let setId = `set-${Utility.generateSetId()}`;
+        let newSet = new Class.Set(setCards, setId);
+        GameState.boardArr.push(newSet);
         updateGameState();
     });
 
     socket.on('draw card', msg =>
     {
-        let r = Math.floor(Math.random() * deckArr.length);
-        let targetCard = deckArr.splice(r, 1)[0];
-        // targetCard.isHeld = true;
-        // console.log(targetCard.isHeld);
-        playerRackArr[Utility.returnCurrentPlayerRack(turnCounter, playerCount)].cards.push(targetCard);
-
+        let r = Math.floor(Math.random() * GameState.deckArr.length);
+        let targetCard = GameState.deckArr.splice(r, 1)[0];
+        targetCard.isHeld = true;
+        GameState.currentPlayerRack.cards.push(targetCard);
         updateGameState();
     });
 
     socket.on('advance turn', msg =>
     {
-        turnCounter += 1;
-        currentPlayer = Utility.returnCurrentPlayerRack(turnCounter, playerCount);
+        GameState.turnCounter += 1;
+        GameState.currentPlayerIndex = Utility.returnCurrentPlayerIndex(GameState.turnCounter, GameState.playerCount);
         updateGameState();
     });
     
@@ -126,29 +123,35 @@ io.on('connection', socket =>
     {
         if (msg.origin === 'player-rack')
         {
-            playerHandArr.push(
-                playerRackArr[currentPlayer].cards.splice(msg.targetCardIndex, 1)[0]
-            );
+            let targetCard = GameState.currentPlayerRack.cards.splice(msg.index, 1)[0];
+            targetCard.location = msg.destination;
+            GameState.playerHandArr.push(targetCard);
         }
 
         if (msg.origin === 'player-hand')
         {
-            playerRackArr[currentPlayer].cards.push(
-                playerHandArr.splice(msg.targetCardIndex, 1)[0]
-            );
+            let targetCard = GameState.playerHandArr.splice(msg.index, 1)[0];
+            targetCard.location = msg.destination;
+            GameState.currentPlayerRack.cards.push(targetCard);
         }
 
         if (msg.origin === 'set')
         {
-            // let targetSet;
-
-            boardArr.forEach(set =>
+            GameState.boardArr.forEach(set =>
             {
                 if (set.id === msg.setId)
                 {
-                    playerHandArr.push(
-                        set.cards.splice(msg.targetCardIndex, 1)[0]
-                    );
+                    let targetCard = set.cards.splice(msg.index, 1)[0];
+                    targetCard.location = msg.destination;
+
+                    if (msg.destination === 'player-rack')
+                    {
+                        GameState.currentPlayerRack.cards.push(targetCard);
+                    }
+                    else if (msg.destination === 'player-hand')
+                    {
+                        GameState.playerHandArr.push(targetCard);
+                    }
                 }
             });
         }
@@ -158,14 +161,15 @@ io.on('connection', socket =>
 
     socket.on('select set', msg =>
     {
-        let playerHandCards = playerHandArr.splice(0, playerHandArr.length);
+        let playerHandCards = GameState.playerHandArr.splice(0, GameState.playerHandArr.length);
 
-        boardArr.forEach(set =>
+        GameState.boardArr.forEach(set =>
         {
             if (set.id === msg)
             {
                 playerHandCards.forEach(card =>
                 {
+                    card.location = 'set';
                     set.cards.push(card);
                 });
             }

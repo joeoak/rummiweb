@@ -1,17 +1,16 @@
-let isBoardValid,
-    isPlayerPlacedCards;
+const GameState = require('./game-state');
 
 const checkIfPlayerPlacedCards = board =>
 {
-    isPlayerPlacedCards = false; // assume false to start
+    GameState.isPlayerPlacedCards = false; // assume false to start
 
     board.forEach(set =>
     {
         set.cards.forEach(card =>
         {
-            if (card.isHeld === true)
+            if (card.isHeld)
             {
-                isPlayerPlacedCards = true;
+                GameState.isPlayerPlacedCards = true;
             }
         })
     });
@@ -133,7 +132,7 @@ const isContainsJoker = set =>
 
 const verifySets = board =>
 {
-    isBoardValid = true; // assume true to start
+    GameState.isBoardValid = true; // assume true to start
 
     board.forEach(set =>
     {
@@ -148,7 +147,7 @@ const verifySets = board =>
                 else // if not all the same numbers
                 {
                     set.isValid = false;
-                    isBoardValid = false;
+                    GameState.isBoardValid = false;
                 }
             }
             else if (isSameColors(set) && set.cards.length <= 13) // if all same colors
@@ -168,21 +167,25 @@ const verifySets = board =>
                 else
                 {
                     set.isValid = false;
-                    isBoardValid = false;
+                    GameState.isBoardValid = false;
                 }
             }
             else
             {
                 set.isValid = false;
-                isBoardValid = false;
+                GameState.isBoardValid = false;
             }
         }
         else // if a set contains less than 3 cards
         {
             set.isValid = false;
-            isBoardValid = false;
+            GameState.isBoardValid = false;
         }
     });
 }
 
-export { isBoardValid, isPlayerPlacedCards, checkIfPlayerPlacedCards, verifySets };
+module.exports =
+{
+    checkIfPlayerPlacedCards,
+    verifySets,
+};
