@@ -4,12 +4,12 @@
     display: flex;
     flex-direction: column;
     width: var(--player-console-width); // default width
-    min-width: var(--player-console-min-width); // width of 4 cards
-    max-width: var(--player-console-max-width); // width of 8 cards
+    // min-width: var(--player-console-min-width); // width of 4 cards
+    // max-width: var(--player-console-max-width); // width of 8 cards
     box-shadow: var(--border-width-rest) 0 0 0 var(--player-console-border-color);
     background-color: white;
-    overflow-y: scroll;
-    resize: horizontal;
+    // overflow: auto;
+    // resize: horizontal;
 
     & > * {
         display: flex;
@@ -27,7 +27,7 @@
 #player-console-rack {
     flex-grow: 1;
 
-    overflow-y: scroll;
+    overflow: auto;
 }
 
 #player-console-hand {

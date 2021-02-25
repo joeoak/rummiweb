@@ -108,17 +108,20 @@ button.card, button#button-new-set {
   height: 100vh;
 }
 
+#player-console-hand {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  background-color: white;
+}
+
 #player-console {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   width: var(--player-console-width);
-  min-width: var(--player-console-min-width);
-  max-width: var(--player-console-max-width);
   box-shadow: var(--border-width-rest) 0 0 0 var(--player-console-border-color);
   background-color: white;
-  overflow-y: scroll;
-  resize: horizontal;
 }
 #player-console > * {
   display: flex;
@@ -133,7 +136,7 @@ button.card, button#button-new-set {
 
 #player-console-rack {
   flex-grow: 1;
-  overflow-y: scroll;
+  overflow: auto;
 }
 
 #player-console-hand {
@@ -300,6 +303,22 @@ button.card, button#button-new-set {
 }
 .card:focus, .card:hover {
   transform: var(--card-transform-rotate);
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--card-width);
+  height: var(--card-height);
+  margin: var(--card-margin);
+  border-radius: var(--card-border-radius);
+  color: #CCCCCC;
+  background: none;
+  user-select: none;
+}
+.cell:focus, .cell:hover {
+  background-color: #F2F2F2;
 }
 
 /*# sourceMappingURL=styles.css.map */

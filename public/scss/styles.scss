@@ -13,6 +13,14 @@ html {
     height: 100vh;
 }
 
+#player-console-hand
+{
+    position: fixed;
+    z-index: 1000;
+    display: flex;
+    background-color: white;
+}
+
 @import './player-console.scss';
 @import './board.scss';
 @import './card.scss';

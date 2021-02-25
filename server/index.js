@@ -6,14 +6,17 @@ const socketio = require('socket.io');
 const io = socketio(server);
 const PORT = 8000;
 
-const Class = require('./classes.js');
-const Game = require('./game.js');
-const GameState = require('./game-state.js');
-const Utility = require('./utilities.js');
-const Verify = require('./verify.js');
+const Class = require('./scripts/classes.js');
+const GameSetup = require('./scripts/game-setup.js');
+const GameState = require('./scripts/game-state.js');
+const Utility = require('./scripts/utilities.js');
+const Verify = require('./scripts/verify.js');
 
 app.use(express.static('../public'));
 app.get('/', (req, res) => { res.sendFile('index.html') });
+
+let clientsArr = new Array(),
+    clientsCount;
 
 const startGame = () =>
 {
@@ -24,8 +27,8 @@ const startGame = () =>
     GameState.turnCounter = 1;
     GameState.playerCount = 2;
     GameState.currentPlayerIndex = 0;
-    Game.initiateDeck(GameState.deckArr);
-    Game.distributeCards(GameState.deckArr, GameState.playerRackArr, 2);
+    GameSetup.initiateDeck(GameState.deckArr);
+    GameSetup.distributeCards(GameState.deckArr, GameState.playerRackArr, 2);
 }
 
 const clearGame = () =>
@@ -45,17 +48,17 @@ const updateGameState = () =>
     removeEmptySets();
 
     Verify.verifySets(GameState.boardArr);
-    Verify.checkIfPlayerPlacedCards(GameState.boardArr);
+    Verify.checkIfCardsAdded(GameState.boardArr);
 
     GameState.boardArr.forEach(set => 
     {
         Utility.sortByColorAndNumber(set.cards);
     });
 
-    GameState.playerRackArr.forEach(rack => 
-    {
-        Utility.sortByColorAndNumber(rack.cards);
-    });
+    // GameState.playerRackArr.forEach(rack => 
+    // {
+    //     Utility.sortByColorAndNumber(rack.cards);
+    // });
 }
 
 const removeEmptySets = () =>
@@ -78,7 +81,7 @@ const removeEmptySets = () =>
     });
 }
 
-const lockDownSets = () =>
+const lockSets = () =>
 {
     // set all cards to isHeld = false
     GameState.boardArr.forEach(set =>
@@ -90,20 +93,18 @@ const lockDownSets = () =>
     });
 }
 
-let clientsArr = new Array();
-let clientsCount;
-
 io.on('connection', socket =>
 {
-    let clientIP;
-    let clientIndex;
+    const emitGameState = () => io.sockets.emit('game update', JSON.stringify(GameState));
 
-    socket.nickname = 'foo';
+    let clientsCount = socket.server.eio.clientsCount,
+        clientIndex = socket.server.eio.clientsCount,
+        clientIP = socket.client.conn.remoteAddress;
+        
 
+    // socket.nickname = 'foo';
     // clientId = socket.client.id;
-    clientIP = socket.client.conn.remoteAddress;
     // clientsArr = Object.keys(socket.server.eio.clients);
-    clientsCount = socket.server.eio.clientsCount;
 
     if (clientsArr.includes(clientIP) === false)
     {
@@ -118,54 +119,50 @@ io.on('connection', socket =>
         }
     });
 
-    console.log('--- user connected');
-    console.log({ clientIP, clientsArr });
-
     socket.emit('player index', clientIndex);
 
     if (clientsCount === 1)
     {
         startGame();
         updateGameState();
-        io.sockets.emit('game update', JSON.stringify(GameState));
+        emitGameState();
     }
     else if (clientsCount > 1)
     {
         updateGameState();
-        io.sockets.emit('game update', JSON.stringify(GameState));
+        emitGameState();
     }
     else if (clientsCount > 4)
     {
         return;
     }
 
+    console.log({ clientsCount, clientsArr });
+
     socket.on('disconnect', () =>
     {
-        // clientId = socket.server.eio.clients.remoteAddress;
-        // clientsArr = Object.keys(socket.server.eio.clients);
         clientsCount = socket.server.eio.clientsCount;
-        
-        console.log('--- user disconnected');
-        console.log({ clientsArr });
 
         if (clientsCount === 0)
         {
             clientsArr = [];
             clearGame();
         }
+
+        console.log({ clientsCount, clientsArr });
     });
 
     socket.on('game start', () =>
     {
         startGame();
         updateGameState();
-        io.sockets.emit('game update', JSON.stringify(GameState));
+        emitGameState();
     });
 
     socket.on('game update', () =>
     {
         updateGameState();
-        io.sockets.emit('game update', JSON.stringify(GameState));
+        emitGameState();
     });
 
     socket.on('add group', msg =>
@@ -181,7 +178,7 @@ io.on('connection', socket =>
         let newSet = new Class.Set(setCards, setId);
         GameState.boardArr.push(newSet);
         updateGameState();
-        io.sockets.emit('game update', JSON.stringify(GameState));
+        emitGameState();
     });
 
     socket.on('draw card', msg =>
@@ -191,25 +188,28 @@ io.on('connection', socket =>
         targetCard.isHeld = true;
         GameState.currentPlayerRack.cards.push(targetCard);
         updateGameState();
-        io.sockets.emit('game update', JSON.stringify(GameState));
+        emitGameState();
     });
 
     socket.on('advance turn', msg =>
     {
         GameState.turnCounter += 1;
         GameState.currentPlayerIndex = Utility.returnCurrentPlayerIndex(GameState.turnCounter, GameState.playerCount);
-        lockDownSets();
+        lockSets();
         updateGameState();
-        io.sockets.emit('game update', JSON.stringify(GameState));
+        emitGameState();
     });
     
     socket.on('select card', msg =>
     {
+        /*
         if (msg.location === 'player-rack')
         {
             let targetCard = GameState.currentPlayerRack.cards.splice(msg.index, 1)[0];
             targetCard.location = msg.destination;
             GameState.playerHandArr.push(targetCard);
+
+            GameState.currentPlayerRack.cards.splice(msg.index, 0, new Class.Cell());
         }
 
         if (msg.location === 'player-hand' &&
@@ -240,20 +240,72 @@ io.on('connection', socket =>
                 }
             });
         }
+        */
+
+        if (msg.location === 'player-rack')
+        {
+            let targetCard = GameState.currentPlayerRack.cards.splice(msg.index, 1)[0];
+            targetCard.location = msg.destination;
+
+            if (GameState.playerHandArr.length === 1)
+            {
+                let heldCard = GameState.playerHandArr.splice(0, 1)[0];
+                heldCard.location = 'player-rack';
+                GameState.currentPlayerRack.cards.splice(msg.index, 0, heldCard);
+            }
+            else
+            {
+                GameState.currentPlayerRack.cards.splice(msg.index, 0, new Class.Cell());
+            }
+
+            GameState.playerHandArr.push(targetCard);
+        }
+
+       if (msg.location === 'set')
+        {
+            GameState.boardArr.forEach(set =>
+            {
+                if (set.id === msg.setId)
+                {
+                    let targetCard = set.cards.splice(msg.index, 1)[0];
+                    targetCard.location = msg.destination;
+
+                    if (msg.destination === 'player-rack')
+                    {
+                        GameState.currentPlayerRack.cards.push(targetCard);
+                    }
+                    else if (msg.destination === 'player-hand')
+                    {
+                        GameState.playerHandArr.push(targetCard);
+                    }
+                }
+            });
+        }
 
         updateGameState();
-        io.sockets.emit('game update', JSON.stringify(GameState));
+        emitGameState();
+    });
+
+    socket.on('select cell', msg =>
+    {
+        // console.log(msg);
+        let targetCard = GameState.playerHandArr.splice(0, 1)[0];
+        targetCard.location = 'player-rack';
+        GameState.currentPlayerRack.cards.splice(msg, 1, targetCard);
+
+        updateGameState();
+        emitGameState();
     });
 
     socket.on('select set', msg =>
     {
-        let playerHandCards = GameState.playerHandArr.splice(0, GameState.playerHandArr.length);
+        let playerHandCardsArr = GameState.playerHandArr.splice(0, GameState.playerHandArr.length);
 
         GameState.boardArr.forEach(set =>
         {
             if (set.id === msg)
             {
-                playerHandCards.forEach(card =>
+                playerHandCardsArr.forEach(card =>
                 {
                     card.location = 'set';
                     set.cards.push(card);
@@ -262,7 +314,7 @@ io.on('connection', socket =>
         });
 
         updateGameState();
-        io.sockets.emit('game update', JSON.stringify(GameState));
+        emitGameState();
     });
 });
 

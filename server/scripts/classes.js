@@ -8,6 +8,11 @@ function Card(color, id, num, type)
     this.type = type;
 }
 
+function Cell()
+{
+    this.type = 'cell';
+}
+
 function PlayerRack(cards, name, index)
 {
     this.cards = cards;
@@ -25,6 +30,7 @@ function Set(cards, id)
 module.exports =
 {
     Card,
+    Cell,
     PlayerRack,
     Set,
 }

@@ -1,4 +1,4 @@
-const { Card, PlayerRack } = require('./classes.js');
+const { Card, Cell, PlayerRack } = require('./classes.js');
 
 const initiateDeck = (deckArr) => 
 {   
@@ -41,6 +41,11 @@ const distributeCards = (deckArr, playerRackArr, playerCount) =>
             let targetCard = deckArr.splice(r, 1)[0];
             targetCard.isHeld = true;
             newRackArr.push(targetCard);
+        }
+
+        for (let k = 0; k < 22; k++)
+        {
+            newRackArr.push(new Cell());
         }
 
         playerRackArr.push(new PlayerRack(

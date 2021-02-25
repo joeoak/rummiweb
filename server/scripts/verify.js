@@ -1,6 +1,6 @@
 const GameState = require('./game-state');
 
-const checkIfPlayerPlacedCards = board =>
+const checkIfCardsAdded = board =>
 {
     GameState.isCardsAdded = false; // assume false to start
 
@@ -186,6 +186,6 @@ const verifySets = board =>
 
 module.exports =
 {
-    checkIfPlayerPlacedCards,
+    checkIfCardsAdded,
     verifySets,
 };

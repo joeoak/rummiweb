@@ -39,6 +39,21 @@ const renderCard = (card, index, setId) =>
     return newCard;
 }
 
+const renderCell = index =>
+{
+    let newCell = document.createElement('button');
+    newCell.classList.add('cell');
+    newCell.dataset.index = index;
+    newCell.innerText = '•';
+
+    if (GameState.currentPlayerIndex === thisPlayerIndex)
+    {
+        newCell.onclick = (e) => selectCell(e);
+    }
+
+    return newCell;
+}
+
 const renderBoard = () =>
 {
     GameState.boardArr.forEach(set =>
@@ -71,15 +86,38 @@ const renderBoard = () =>
     Node.boardSets.appendChild(addSetButton);
 }
 
+const renderRack = () =>
+{
+    // render player rack
+    thisPlayerRack.cards.forEach((card, index) =>
+    {
+        if (card.type === 'num' || card.type === 'joker')
+        {
+            // add card
+            Node.playerConsoleRack.appendChild(renderCard(card, index));
+        }
+        else
+        {
+            // add cell
+            Node.playerConsoleRack.appendChild(renderCell(index));
+        }
+    });
+}
+
 const renderPlayerConsole = () =>
 {
     Node.playerConsoleHeader.innerHTML = `${thisPlayerRack.name}`;
 
-    Node.scoreboard.innerHTML =
-        `<div class="scoreboard-item">
-            <div class="scoreboard-item-turn-title">Turn</div>
-            <div class="scoreboard-item-turn-number">${GameState.turnCounter}</div>
-        </div>`;
+    renderRack();
+
+    if (GameState.currentPlayerIndex === thisPlayerIndex)
+    {
+        // render player hand
+        GameState.playerHandArr.forEach((card, index) => 
+        {
+            Node.playerConsoleHand.appendChild(renderCard(card, index));
+        });
+    }
 
     for (let i = 0; i < GameState.playerCount; i++)
     {
@@ -108,8 +146,16 @@ const renderPlayerConsole = () =>
         let nextButton = document.createElement('button');
         nextButton.classList.add('player-console-button');
         nextButton.id = 'button-next-turn';
-        nextButton.innerHTML += 'Next turn';
         nextButton.onclick = () => advanceTurn();
+
+        if (GameState.isCardsAdded)
+        {
+            nextButton.innerHTML += 'Finish turn';
+        }
+        else
+        {
+            nextButton.innerHTML += 'Draw tile';
+        }
 
         if (GameState.isValidBoard === false || GameState.playerHandArr.length > 0)
         {
@@ -140,22 +186,6 @@ const renderGame = () =>
     Node.playerConsoleButtons.innerHTML = '';
 
     renderBoard();
-
-    if (GameState.currentPlayerIndex === thisPlayerIndex)
-    {
-        // render player hand
-        GameState.playerHandArr.forEach((card, index) => 
-        {
-            Node.playerConsoleHand.appendChild(renderCard(card, index));
-        });
-    }
-
-    // render player rack
-    thisPlayerRack.cards.forEach((card, index) =>
-    {
-        Node.playerConsoleRack.appendChild(renderCard(card, index));
-    });
-
     renderPlayerConsole();
 }
 
@@ -207,11 +237,11 @@ const selectCard = (e) =>
         targetCard.destination = 'player-hand';
     }
     
-    if (targetCard.location === 'player-hand' && 
-        targetCard.isHeld)
-    {
-        targetCard.destination = 'player-rack';
-    }
+    // if (targetCard.location === 'player-hand' && 
+    //     targetCard.isHeld)
+    // {
+    //     targetCard.destination = 'player-rack';
+    // }
     
     if (targetCard.location === 'set')
     {
@@ -228,11 +258,27 @@ const selectCard = (e) =>
     socket.emit('select card', targetCard);
 }
 
+const selectCell = (e) =>
+{
+    if (GameState.playerHandArr.length === 1)
+    {
+        socket.emit('select cell', e.target.dataset.index);
+    }
+}
+
 const selectSet = (e) =>
 {
     let setId = e.target.id;
     socket.emit('select set', setId);
 }
+
+const onMouseMove = (e) =>
+{
+  Node.playerConsoleHand.style.left = (e.pageX + 10) + 'px';
+  Node.playerConsoleHand.style.top = (e.pageY + 10) + 'px';
+}
+
+document.addEventListener('mousemove', onMouseMove);
 
 /* socket.io */
 
@@ -244,16 +290,12 @@ let thisPlayerIndex,
 
 socket.on('game update', msg =>
 {
-    console.log('game update!');
     GameState = JSON.parse(msg);
-    console.log(GameState);
     thisPlayerRack = GameState.playerRackArr[thisPlayerIndex];
     renderGame();
 });
 
 socket.on('player index', msg =>
 {
-    // console.log(msg, GameState.playerRackArr);
     thisPlayerIndex = msg;
-    // thisPlayerRack = GameState.playerRackArr[msg];
 });

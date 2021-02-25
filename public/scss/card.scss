@@ -83,3 +83,20 @@
         transform: var(--card-transform-rotate);
     }
 }
+
+.cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--card-width);
+    height: var(--card-height);
+    margin: var(--card-margin);
+    border-radius: var(--card-border-radius);
+    color: #CCCCCC;
+    background: none;
+    user-select: none;
+
+    &:focus, &:hover {
+        background-color: #F2F2F2;
+    }
+}

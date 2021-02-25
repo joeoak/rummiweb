@@ -5,4 +5,12 @@ let boardSets = document.querySelector('#board-sets'),
     playerConsoleRack = document.querySelector('#player-console-rack'),
     scoreboard = document.querySelector('#scoreboard');
 
-export { boardSets, playerConsoleButtons, playerConsoleHand, playerConsoleHeader, playerConsoleRack, scoreboard }
+export
+{
+    boardSets, 
+    playerConsoleButtons, 
+    playerConsoleHand, 
+    playerConsoleHeader, 
+    playerConsoleRack, 
+    scoreboard 
+}
