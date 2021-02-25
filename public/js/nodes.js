@@ -12,5 +12,5 @@ export
     playerConsoleHand, 
     playerConsoleHeader, 
     playerConsoleRack, 
-    scoreboard 
+    scoreboard,
 }

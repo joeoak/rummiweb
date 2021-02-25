@@ -6,11 +6,11 @@ const socketio = require('socket.io');
 const io = socketio(server);
 const PORT = 8000;
 
-const Class = require('./scripts/classes.js');
-const GameSetup = require('./scripts/game-setup.js');
-const GameState = require('./scripts/game-state.js');
-const Utility = require('./scripts/utilities.js');
-const Verify = require('./scripts/verify.js');
+const Class = require('./js/classes.js');
+const GameSetup = require('./js/game-setup.js');
+const GameState = require('./js/game-state.js');
+const Utility = require('./js/utilities.js');
+const Verify = require('./js/verify.js');
 
 app.use(express.static('../public'));
 app.get('/', (req, res) => { res.sendFile('index.html') });
