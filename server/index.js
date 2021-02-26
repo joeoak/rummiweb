@@ -8,6 +8,7 @@ const PORT = 8000;
 
 const Class = require('./js/classes.js');
 const GameSetup = require('./js/game-setup.js');
+const { playerHandArr } = require('./js/game-state.js');
 const GameState = require('./js/game-state.js');
 const Utility = require('./js/utilities.js');
 const Verify = require('./js/verify.js');
@@ -15,8 +16,7 @@ const Verify = require('./js/verify.js');
 app.use(express.static('../public'));
 app.get('/', (req, res) => { res.sendFile('index.html') });
 
-let clientsArr = new Array(),
-    clientsCount;
+let clientsArr = new Array();
 
 const startGame = () =>
 {
@@ -42,6 +42,14 @@ const clearGame = () =>
     GameState.currentPlayerIndex = 0;
 }
 
+const updateLocation = (arr, str) =>
+{
+    arr.forEach(card =>
+    {
+        card.location = str;
+    })
+}
+
 const updateGameState = () =>
 {
     GameState.currentPlayerRack = GameState.playerRackArr[GameState.currentPlayerIndex];
@@ -50,15 +58,22 @@ const updateGameState = () =>
     Verify.verifySets(GameState.boardArr);
     Verify.checkIfCardsAdded(GameState.boardArr);
 
+    updateLocation(GameState.playerHandArr, 'player-hand');
+
+    GameState.playerRackArr.forEach(rack =>
+    {
+        updateLocation(rack.cards, 'player-rack');
+    })
+
+    GameState.boardArr.forEach(set =>
+    {
+        updateLocation(set.cards, 'set');
+    })
+
     GameState.boardArr.forEach(set => 
     {
         Utility.sortByColorAndNumber(set.cards);
     });
-
-    // GameState.playerRackArr.forEach(rack => 
-    // {
-    //     Utility.sortByColorAndNumber(rack.cards);
-    // });
 }
 
 const removeEmptySets = () =>
@@ -100,7 +115,6 @@ io.on('connection', socket =>
     let clientsCount = socket.server.eio.clientsCount,
         clientIndex = socket.server.eio.clientsCount,
         clientIP = socket.client.conn.remoteAddress;
-        
 
     // socket.nickname = 'foo';
     // clientId = socket.client.id;
@@ -111,13 +125,7 @@ io.on('connection', socket =>
         clientsArr.push(clientIP);
     }
 
-    clientsArr.forEach((client, index) =>
-    {
-        if (client === clientIP)
-        {
-            clientIndex = index;
-        }
-    });
+    clientIndex = clientsArr.findIndex(client => client === clientIP);
 
     socket.emit('player index', clientIndex);
 
@@ -165,15 +173,9 @@ io.on('connection', socket =>
         emitGameState();
     });
 
-    socket.on('add group', msg =>
+    socket.on('add set', () =>
     {
         let setCards = GameState.playerHandArr.splice(0, GameState.playerHandArr.length);
-
-        setCards.forEach(card =>
-        {
-            card.location = 'set';
-        });
-
         let setId = `set-${Utility.generateSetId()}`;
         let newSet = new Class.Set(setCards, setId);
         GameState.boardArr.push(newSet);
@@ -181,7 +183,7 @@ io.on('connection', socket =>
         emitGameState();
     });
 
-    socket.on('draw card', msg =>
+    socket.on('draw card', () =>
     {
         let r = Math.floor(Math.random() * GameState.deckArr.length);
         let targetCard = GameState.deckArr.splice(r, 1)[0];
@@ -191,7 +193,7 @@ io.on('connection', socket =>
         emitGameState();
     });
 
-    socket.on('advance turn', msg =>
+    socket.on('advance turn', () =>
     {
         GameState.turnCounter += 1;
         GameState.currentPlayerIndex = Utility.returnCurrentPlayerIndex(GameState.turnCounter, GameState.playerCount);
@@ -202,116 +204,73 @@ io.on('connection', socket =>
     
     socket.on('select card', msg =>
     {
-        /*
-        if (msg.location === 'player-rack')
-        {
-            let targetCard = GameState.currentPlayerRack.cards.splice(msg.index, 1)[0];
-            targetCard.location = msg.destination;
-            GameState.playerHandArr.push(targetCard);
+        console.log('card received');
+        
+        let targetCardData = JSON.parse(msg);
 
-            GameState.currentPlayerRack.cards.splice(msg.index, 0, new Class.Cell());
-        }
-
-        if (msg.location === 'player-hand' &&
-            msg.isHeld)
+        if (targetCardData.location === 'player-rack')
         {
-            let targetCard = GameState.playerHandArr.splice(msg.index, 1)[0];
-            targetCard.location = msg.destination;
-            GameState.currentPlayerRack.cards.push(targetCard);
-        }
+            let targetCard = GameState.currentPlayerRack.cards.splice(targetCardData.index, 1)[0];
 
-        if (msg.location === 'set')
-        {
-            GameState.boardArr.forEach(set =>
+            if (GameState.playerHandArr.length === 0)
             {
-                if (set.id === msg.setId)
-                {
-                    let targetCard = set.cards.splice(msg.index, 1)[0];
-                    targetCard.location = msg.destination;
-
-                    if (msg.destination === 'player-rack')
-                    {
-                        GameState.currentPlayerRack.cards.push(targetCard);
-                    }
-                    else if (msg.destination === 'player-hand')
-                    {
-                        GameState.playerHandArr.push(targetCard);
-                    }
-                }
-            });
-        }
-        */
-
-        if (msg.location === 'player-rack')
-        {
-            let targetCard = GameState.currentPlayerRack.cards.splice(msg.index, 1)[0];
-            targetCard.location = msg.destination;
-
-            if (GameState.playerHandArr.length === 1)
+                GameState.currentPlayerRack.cards.splice(targetCardData.index, 0, new Class.Cell());
+            }
+            else if (GameState.playerHandArr.length === 1)
             {
                 let heldCard = GameState.playerHandArr.splice(0, 1)[0];
-                heldCard.location = 'player-rack';
-                GameState.currentPlayerRack.cards.splice(msg.index, 0, heldCard);
-            }
-            else
-            {
-                GameState.currentPlayerRack.cards.splice(msg.index, 0, new Class.Cell());
+                GameState.currentPlayerRack.cards.splice(targetCardData.index, 0, heldCard);
             }
 
             GameState.playerHandArr.push(targetCard);
         }
 
-       if (msg.location === 'set')
+       if (targetCardData.location === 'set')
         {
-            GameState.boardArr.forEach(set =>
-            {
-                if (set.id === msg.setId)
-                {
-                    let targetCard = set.cards.splice(msg.index, 1)[0];
-                    targetCard.location = msg.destination;
+            let targetSet = GameState.boardArr.find(set => set.id === targetCardData.setId);
 
-                    if (msg.destination === 'player-rack')
-                    {
-                        GameState.currentPlayerRack.cards.push(targetCard);
-                    }
-                    else if (msg.destination === 'player-hand')
-                    {
-                        GameState.playerHandArr.push(targetCard);
-                    }
-                }
-            });
+            if (GameState.playerHandArr.length === 0)
+            {
+                let targetCard = targetSet.cards.splice(targetCardData.index, 1)[0];
+                GameState.playerHandArr.push(targetCard);
+            }
+            else if (GameState.playerHandArr.length === 1)
+            {
+                let heldCard = GameState.playerHandArr.splice(0, 1)[0];
+                targetSet.cards.push(heldCard);
+            }
         }
 
         updateGameState();
         emitGameState();
     });
 
-    socket.on('select cell', msg =>
+    socket.on('select cell', targetCellIndex =>
     {
-        // console.log(msg);
-        let targetCard = GameState.playerHandArr.splice(0, 1)[0];
-        targetCard.location = 'player-rack';
-        GameState.currentPlayerRack.cards.splice(msg, 1, targetCard);
-
-        updateGameState();
-        emitGameState();
+        if (GameState.playerHandArr.length === 1 &&
+            GameState.playerHandArr[0].isHeld === true)
+        {
+            let heldCard = GameState.playerHandArr.splice(0, 1)[0];
+            GameState.currentPlayerRack.cards.splice(targetCellIndex, 1, heldCard);
+            updateGameState();
+            emitGameState();
+        }
     });
 
-    socket.on('select set', msg =>
+    socket.on('select set', targetSetId =>
     {
-        let playerHandCardsArr = GameState.playerHandArr.splice(0, GameState.playerHandArr.length);
+        let targetSet = GameState.boardArr.find(set => set.id === targetSetId);
 
-        GameState.boardArr.forEach(set =>
+        if (GameState.playerHandArr.length === 0)
         {
-            if (set.id === msg)
-            {
-                playerHandCardsArr.forEach(card =>
-                {
-                    card.location = 'set';
-                    set.cards.push(card);
-                });
-            }
-        });
+            let targetSetCards = targetSet.cards.splice(0, targetSet.cards.length);
+            targetSetCards.forEach(card => GameState.playerHandArr.push(card));
+        }
+        else if (GameState.playerHandArr.length >= 1)
+        {
+            let playerHandCardsArr = GameState.playerHandArr.splice(0, GameState.playerHandArr.length);
+            playerHandCardsArr.forEach(card => targetSet.cards.push(card));
+        }
 
         updateGameState();
         emitGameState();

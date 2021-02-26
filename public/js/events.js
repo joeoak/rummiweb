@@ -1,9 +1,8 @@
-import * as Node from './nodes.js';
-import { socket, GameState, thisPlayerRack } from './scripts.js';
+import { socket, GameState, thisPlayerRack, thisPlayerIndex } from './scripts.js';
 
-const addGroup = (e) =>
+const addSet = (e) =>
 {
-    socket.emit('add group');
+    socket.emit('add set');
 }
 
 const advanceTurn = (e) =>
@@ -19,7 +18,7 @@ const advanceTurn = (e) =>
 
         if (thisPlayerRack.cards.length === 0)
         {
-            alert('Game over!');
+            socket.emit('game over', thisPlayerIndex);
         }
         else
         {
@@ -30,69 +29,37 @@ const advanceTurn = (e) =>
 
 const selectCard = (e) =>
 {
+    console.log('card selected');
+
     e.stopPropagation();
 
-    let targetCard = new Object(
+    let targetCardData = new Object(
     {
-        destination: '',
-        location: e.target.dataset.location,
-        setId: e.target.dataset.setId,
         id: e.target.id,
         index: e.target.dataset.index,
         isHeld: e.target.classList.contains('held'),
+        location: e.target.dataset.location,
+        setId: e.target.dataset.setId,
     });
 
-    if (targetCard.location === 'player-rack')
-    {
-        targetCard.destination = 'player-hand';
-    }
-    
-    // if (targetCard.location === 'player-hand' && 
-    //     targetCard.isHeld)
-    // {
-    //     targetCard.destination = 'player-rack';
-    // }
-    
-    if (targetCard.location === 'set')
-    {
-        if (targetCard.isHeld)
-        {
-            targetCard.destination = 'player-rack';
-        }
-        else
-        {
-            targetCard.destination = 'player-hand';
-        }
-    }
-
-    socket.emit('select card', targetCard);
+    socket.emit('select card', JSON.stringify(targetCardData));
 }
 
 const selectCell = (e) =>
 {
-    if (GameState.playerHandArr.length === 1)
-    {
-        socket.emit('select cell', e.target.dataset.index);
-    }
+    let targetCellIndex = e.target.dataset.index;
+    socket.emit('select cell', targetCellIndex);
 }
 
 const selectSet = (e) =>
 {
-    let setId = e.target.id;
-    socket.emit('select set', setId);
+    let targetSetId = e.target.id;
+    socket.emit('select set', targetSetId);
 }
-
-const onMouseMove = (e) =>
-{
-  Node.playerConsoleHand.style.left = (e.pageX + 10) + 'px';
-  Node.playerConsoleHand.style.top = (e.pageY + 10) + 'px';
-}
-
-document.addEventListener('mousemove', onMouseMove);
 
 export
 {
-    addGroup,
+    addSet,
     advanceTurn,
     selectCard,
     selectCell,

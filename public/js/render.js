@@ -10,11 +10,6 @@ const renderCard = (card, index, setId) =>
     newCard.dataset.index = index;
     newCard.dataset.location = card.location;
 
-    if (GameState.currentPlayerIndex === thisPlayerIndex)
-    {
-        newCard.onclick = (e) => Event.selectCard(e);
-    }
-    
     if (card.type === 'num')
     {
         newCard.classList.add(card.color);
@@ -31,9 +26,22 @@ const renderCard = (card, index, setId) =>
         newCard.dataset.setId = setId;
     }
 
-    if (card.isHeld && card.location != 'player-rack')
+    if (card.isHeld &&
+        card.location != 'player-rack')
     {
         newCard.classList.add('held');
+    }
+
+    if (GameState.currentPlayerIndex === thisPlayerIndex)
+    {
+        newCard.onclick = e => Event.selectCard(e);
+    }
+    else
+    {
+        if (card.location === 'player-rack')
+        {
+            newCard.onclick = e => Event.selectCard(e);
+        }
     }
     
     return newCard;
@@ -48,7 +56,7 @@ const renderCell = index =>
 
     if (GameState.currentPlayerIndex === thisPlayerIndex)
     {
-        newCell.onclick = (e) => Event.selectCell(e);
+        newCell.onclick = e => Event.selectCell(e);
     }
 
     return newCell;
@@ -151,7 +159,10 @@ const renderSet = set =>
         newSet.classList.add('invalid');
     }
 
-    newSet.onclick = (e) => Event.selectSet(e);
+    if (GameState.currentPlayerIndex === thisPlayerIndex)
+    {
+        newSet.onclick = e => Event.selectSet(e);
+    }
 
     set.cards.forEach((card, index) =>
     {
@@ -172,7 +183,7 @@ const renderBoard = () =>
 
     // render add set button
     let addSetButton = document.createElement('button');
-    addSetButton.onclick = (e) => Event.addGroup(e);
+    addSetButton.onclick = () => Event.addSet();
     addSetButton.id = 'button-new-set'
     addSetButton.innerText += '+';
     Node.boardSets.appendChild(addSetButton);

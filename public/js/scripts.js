@@ -1,3 +1,4 @@
+import * as Node from './nodes.js';
 import { renderGame } from './render.js';
 
 const socket = io();
@@ -25,3 +26,12 @@ export
     thisPlayerIndex,
     thisPlayerRack,
 }
+
+// to do: find a better implementation of this
+const onMouseMove = (e) =>
+{
+  Node.playerConsoleHand.style.left = (e.pageX + 10) + 'px';
+  Node.playerConsoleHand.style.top = (e.pageY + 10) + 'px';
+}
+
+document.addEventListener('mousemove', onMouseMove);
