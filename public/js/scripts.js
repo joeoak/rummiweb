@@ -5,11 +5,13 @@ const socket = io();
 
 let GameState = new Object(),
     thisPlayerIndex,
+    thisPlayerHand,
     thisPlayerRack;
 
 socket.on('game update', msg =>
 {
     GameState = JSON.parse(msg);
+    thisPlayerHand = GameState.playerHandArr[thisPlayerIndex];
     thisPlayerRack = GameState.playerRackArr[thisPlayerIndex];
     renderGame();
 });
@@ -23,12 +25,13 @@ export
 {
     socket,
     GameState,
+    thisPlayerHand,
     thisPlayerIndex,
     thisPlayerRack,
 }
 
 // to do: find a better implementation of this
-const onMouseMove = (e) =>
+const onMouseMove = e =>
 {
   Node.playerConsoleHand.style.left = (e.pageX + 10) + 'px';
   Node.playerConsoleHand.style.top = (e.pageY + 10) + 'px';

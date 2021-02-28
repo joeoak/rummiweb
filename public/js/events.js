@@ -1,14 +1,13 @@
 import { socket, GameState, thisPlayerRack, thisPlayerIndex } from './scripts.js';
 
-const addSet = (e) =>
+const addSet = () =>
 {
     socket.emit('add set');
 }
 
-const advanceTurn = (e) =>
+const advanceTurn = () =>
 {
-    if (GameState.isValidBoard &&
-        GameState.playerHandArr.length === 0)
+    if (GameState.isValidBoard)
     {
         if (GameState.isCardsAdded === false &&
             GameState.deckArr.length > 0)
@@ -27,9 +26,9 @@ const advanceTurn = (e) =>
     }
 }
 
-const selectCard = (e) =>
+const selectCard = e =>
 {
-    console.log('card selected');
+    // console.log('card selected');
 
     e.stopPropagation();
 
@@ -40,18 +39,24 @@ const selectCard = (e) =>
         isHeld: e.target.classList.contains('held'),
         location: e.target.dataset.location,
         setId: e.target.dataset.setId,
+        thisPlayerIndex: thisPlayerIndex,
     });
 
     socket.emit('select card', JSON.stringify(targetCardData));
 }
 
-const selectCell = (e) =>
+const selectCell = e =>
 {
-    let targetCellIndex = e.target.dataset.index;
-    socket.emit('select cell', targetCellIndex);
+    let targetCellData = new Object(
+    {
+        index: e.target.dataset.index,
+        thisPlayerIndex: thisPlayerIndex,
+    });
+
+    socket.emit('select cell', JSON.stringify(targetCellData));
 }
 
-const selectSet = (e) =>
+const selectSet = e =>
 {
     let targetSetId = e.target.id;
     socket.emit('select set', targetSetId);

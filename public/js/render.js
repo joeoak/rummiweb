@@ -1,6 +1,6 @@
 import * as Event from './events.js';
 import * as Node from './nodes.js';
-import { GameState, thisPlayerIndex, thisPlayerRack } from './scripts.js';
+import { GameState, thisPlayerHand, thisPlayerIndex, thisPlayerRack } from './scripts.js';
 
 const renderCard = (card, index, setId) =>
 {
@@ -54,10 +54,10 @@ const renderCell = index =>
     newCell.dataset.index = index;
     newCell.innerText = '•';
 
-    if (GameState.currentPlayerIndex === thisPlayerIndex)
-    {
+    // if (GameState.currentPlayerIndex === thisPlayerIndex)
+    // {
         newCell.onclick = e => Event.selectCell(e);
-    }
+    // }
 
     return newCell;
 }
@@ -82,7 +82,7 @@ const renderConsoleButton = () =>
             nextButton.innerHTML += 'Draw tile';
         }
 
-        if (GameState.isValidBoard === false || GameState.playerHandArr.length > 0)
+        if (GameState.isValidBoard === false)
         {
             nextButton.classList.add('disabled');
         }
@@ -193,13 +193,13 @@ const renderHand = () =>
 {
     Node.playerConsoleHand.innerHTML = '';
 
-    if (GameState.currentPlayerIndex === thisPlayerIndex)
-    {
-        GameState.playerHandArr.forEach((card, index) => 
+    // if (GameState.currentPlayerIndex === thisPlayerIndex)
+    // {
+        thisPlayerHand.cards.forEach((card, index) => 
         {
             Node.playerConsoleHand.appendChild(renderCard(card, index));
         });
-    }
+    // }
 }
 
 const renderPlayerConsole = () =>

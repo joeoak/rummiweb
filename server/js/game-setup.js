@@ -1,4 +1,4 @@
-const { Card, Cell, PlayerRack } = require('./classes.js');
+const { Card, Cell, PlayerHand, PlayerRack } = require('./classes.js');
 
 const initiateDeck = (deckArr) => 
 {   
@@ -29,7 +29,7 @@ const initiateDeck = (deckArr) =>
     });
 }
 
-const distributeCards = (deckArr, playerRackArr, playerCount) =>
+const distributeCards = (deckArr, playerHandArr, playerRackArr, playerCount) =>
 {
     for (let i = 1; i <= playerCount; i++)
     {
@@ -48,11 +48,16 @@ const distributeCards = (deckArr, playerRackArr, playerCount) =>
             newRackArr.push(new Cell());
         }
 
+        playerHandArr.push(new PlayerHand(
+            i - 1,
+            `Player ${i}`,
+        ));
+
         playerRackArr.push(new PlayerRack(
-            newRackArr, 
-            `Player ${i}`, 
-            i - 1)
-        );
+            newRackArr,
+            i - 1,
+            `Player ${i}`,
+        ));
     }
 }
 

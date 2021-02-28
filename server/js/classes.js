@@ -13,11 +13,18 @@ function Cell()
     this.type = 'cell';
 }
 
-function PlayerRack(cards, name, index)
+function PlayerHand(index, name)
+{
+    this.cards = new Array();
+    this.index = index;
+    this.name = name;
+}
+
+function PlayerRack(cards, index, name)
 {
     this.cards = cards;
-    this.name = name;
     this.index = index;
+    this.name = name;
 }
 
 function Set(cards, id)
@@ -31,6 +38,7 @@ module.exports =
 {
     Card,
     Cell,
+    PlayerHand,
     PlayerRack,
     Set,
 }

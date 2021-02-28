@@ -3,14 +3,15 @@ const app = express();
 const http = require('http');
 const server = http.Server(app);
 const socketio = require('socket.io');
+// const { thisPlayerIndex } = require('../public/js/scripts.js');
 const io = socketio(server);
 const PORT = 8000;
 
 const Class = require('./js/classes.js');
 const GameSetup = require('./js/game-setup.js');
-const { playerHandArr } = require('./js/game-state.js');
+// const { playerHandArr } = require('./js/game-state.js');
 const GameState = require('./js/game-state.js');
-const Utility = require('./js/utilities.js');
+const Utility = require('./js/utils.js');
 const Verify = require('./js/verify.js');
 
 app.use(express.static('../public'));
@@ -28,7 +29,7 @@ const startGame = () =>
     GameState.playerCount = 2;
     GameState.currentPlayerIndex = 0;
     GameSetup.initiateDeck(GameState.deckArr);
-    GameSetup.distributeCards(GameState.deckArr, GameState.playerRackArr, 2);
+    GameSetup.distributeCards(GameState.deckArr, GameState.playerHandArr, GameState.playerRackArr, 2);
 }
 
 const clearGame = () =>
@@ -42,24 +43,48 @@ const clearGame = () =>
     GameState.currentPlayerIndex = 0;
 }
 
-const updateLocation = (arr, str) =>
+const updateLocations = () =>
 {
-    arr.forEach(card =>
+    GameState.playerHandArr.forEach(hand =>
     {
-        card.location = str;
+        // console.log('---')
+        // console.log(hand)
+        hand.cards.forEach(card =>
+        {
+            // console.log(card);
+            // card.location = 'player-hand';
+        })
+    })
+
+    GameState.playerRackArr.forEach(rack =>
+    {
+        rack.cards.forEach(card =>
+        {
+            card.location = 'player-rack';
+        })
+    })
+
+    GameState.boardArr.forEach(set =>
+    {
+        set.cards.forEach(card =>
+        {
+            card.location = 'set';
+        })
     })
 }
 
 const updateGameState = () =>
 {
+    GameState.currentPlayerHand = GameState.playerHandArr[GameState.currentPlayerIndex];
     GameState.currentPlayerRack = GameState.playerRackArr[GameState.currentPlayerIndex];
     removeEmptySets();
 
     Verify.verifySets(GameState.boardArr);
     Verify.checkIfCardsAdded(GameState.boardArr);
 
-    updateLocation(GameState.playerHandArr, 'player-hand');
+    updateLocations();
 
+    /*
     GameState.playerRackArr.forEach(rack =>
     {
         updateLocation(rack.cards, 'player-rack');
@@ -69,6 +94,7 @@ const updateGameState = () =>
     {
         updateLocation(set.cards, 'set');
     })
+    */
 
     GameState.boardArr.forEach(set => 
     {
@@ -145,7 +171,7 @@ io.on('connection', socket =>
         return;
     }
 
-    console.log({ clientsCount, clientsArr });
+    // console.log({ clientsCount, clientsArr });
 
     socket.on('disconnect', () =>
     {
@@ -175,7 +201,7 @@ io.on('connection', socket =>
 
     socket.on('add set', () =>
     {
-        let setCards = GameState.playerHandArr.splice(0, GameState.playerHandArr.length);
+        let setCards = GameState.currentPlayerHand.cards.splice(0, GameState.currentPlayerHand.cards.length);
         let setId = `set-${Utility.generateSetId()}`;
         let newSet = new Class.Set(setCards, setId);
         GameState.boardArr.push(newSet);
@@ -204,39 +230,52 @@ io.on('connection', socket =>
     
     socket.on('select card', msg =>
     {
-        console.log('card received');
+        // console.log('card received');
         
         let targetCardData = JSON.parse(msg);
+        let targetPlayerHand = GameState.playerHandArr[targetCardData.thisPlayerIndex];
+        let targetPlayerRack = GameState.playerRackArr[targetCardData.thisPlayerIndex];
+
+        // console.log('--- targetCardData:');
+        // console.log(targetCardData);
+        // console.log('--- targetPlayerRack:');
+        // console.log(targetPlayerRack);
 
         if (targetCardData.location === 'player-rack')
         {
-            let targetCard = GameState.currentPlayerRack.cards.splice(targetCardData.index, 1)[0];
+            // let targetCard = GameState.currentPlayerRack.cards.splice(targetCardData.index, 1)[0];
+            let targetCard = targetPlayerRack.cards.splice(targetCardData.index, 1)[0];
 
-            if (GameState.playerHandArr.length === 0)
+            // console.log('--- targetCard:');
+            // console.log(targetCard);
+
+            if (targetPlayerHand.cards.length === 0)
             {
-                GameState.currentPlayerRack.cards.splice(targetCardData.index, 0, new Class.Cell());
+                // if hand is empty, insert cell where the target card was
+                targetPlayerRack.cards.splice(targetCardData.index, 0, new Class.Cell());
             }
-            else if (GameState.playerHandArr.length === 1)
+            else if (targetPlayerHand.cards.length === 1)
             {
-                let heldCard = GameState.playerHandArr.splice(0, 1)[0];
-                GameState.currentPlayerRack.cards.splice(targetCardData.index, 0, heldCard);
+                // if hand = 1, insert held card where the target card was
+                let heldCard = targetPlayerHand.cards.splice(0, 1)[0];
+                targetPlayerRack.cards.splice(targetCardData.index, 0, heldCard);
             }
 
-            GameState.playerHandArr.push(targetCard);
+            targetPlayerHand.cards.push(targetCard);
         }
 
        if (targetCardData.location === 'set')
         {
             let targetSet = GameState.boardArr.find(set => set.id === targetCardData.setId);
 
-            if (GameState.playerHandArr.length === 0)
+            if (GameState.currentPlayerHand.cards.length === 0)
             {
                 let targetCard = targetSet.cards.splice(targetCardData.index, 1)[0];
-                GameState.playerHandArr.push(targetCard);
+                GameState.currentPlayerHand.cards.push(targetCard);
             }
-            else if (GameState.playerHandArr.length === 1)
+            else if (GameState.currentPlayerHand.cards.length === 1)
             {
-                let heldCard = GameState.playerHandArr.splice(0, 1)[0];
+                let heldCard = GameState.currentPlayerHand.cards.splice(0, 1)[0];
                 targetSet.cards.push(heldCard);
             }
         }
@@ -245,13 +284,18 @@ io.on('connection', socket =>
         emitGameState();
     });
 
-    socket.on('select cell', targetCellIndex =>
+    socket.on('select cell', msg =>
     {
-        if (GameState.playerHandArr.length === 1 &&
-            GameState.playerHandArr[0].isHeld === true)
+        let targetCellData = JSON.parse(msg);
+        let targetPlayerHand = GameState.playerHandArr[targetCellData.thisPlayerIndex];
+        let targetPlayerRack = GameState.playerRackArr[targetCellData.thisPlayerIndex];
+
+        // if hand = 1 and that card isHeld, replace cell with heldCard
+        if (targetPlayerHand.cards.length === 1 &&
+            targetPlayerHand.cards[0].isHeld === true)
         {
-            let heldCard = GameState.playerHandArr.splice(0, 1)[0];
-            GameState.currentPlayerRack.cards.splice(targetCellIndex, 1, heldCard);
+            let heldCard = targetPlayerHand.cards.splice(0, 1)[0];
+            targetPlayerRack.cards.splice(targetCellData.index, 1, heldCard);
             updateGameState();
             emitGameState();
         }
@@ -261,14 +305,14 @@ io.on('connection', socket =>
     {
         let targetSet = GameState.boardArr.find(set => set.id === targetSetId);
 
-        if (GameState.playerHandArr.length === 0)
+        if (GameState.currentPlayerHand.cards.length === 0)
         {
             let targetSetCards = targetSet.cards.splice(0, targetSet.cards.length);
-            targetSetCards.forEach(card => GameState.playerHandArr.push(card));
+            targetSetCards.forEach(card => GameState.currentPlayerHand.cards.push(card));
         }
-        else if (GameState.playerHandArr.length >= 1)
+        else if (GameState.currentPlayerHand.cards.length >= 1)
         {
-            let playerHandCardsArr = GameState.playerHandArr.splice(0, GameState.playerHandArr.length);
+            let playerHandCardsArr = GameState.currentPlayerHand.cards.splice(0, GameState.currentPlayerHand.cards.length);
             playerHandCardsArr.forEach(card => targetSet.cards.push(card));
         }
 
