@@ -1,4 +1,5 @@
 const { Card, Cell, PlayerHand, PlayerRack } = require('./classes.js');
+const GameState = require('./game-state.js');
 
 const initiateDeck = (deckArr) => 
 {   
@@ -43,7 +44,7 @@ const distributeCards = (deckArr, playerHandArr, playerRackArr, playerCount) =>
             newRackArr.push(targetCard);
         }
 
-        for (let k = 0; k < 22; k++)
+        for (let k = 0; k < 92; k++)
         {
             newRackArr.push(new Cell());
         }
@@ -57,12 +58,34 @@ const distributeCards = (deckArr, playerHandArr, playerRackArr, playerCount) =>
             newRackArr,
             i - 1,
             `Player ${i}`,
+            14,
         ));
     }
 }
 
+const setUpGame = () =>
+{
+    Object.assign(GameState,
+    {
+        boardArr: new Array(),
+        currentPlayerHand: null,
+        currentPlayerIndex: 0,
+        currentPlayerRack: null,
+        deckArr: new Array(),
+        isCardsAdded: false,
+        isValidBoard: true,
+        playerCount: 2,
+        playerHandArr: new Array(),
+        playerRackArr: new Array(),
+        setIdArr: new Array(),
+        turnCounter: 1,
+    });
+
+    initiateDeck(GameState.deckArr);
+    distributeCards(GameState.deckArr, GameState.playerHandArr, GameState.playerRackArr, 2);
+}
+
 module.exports =
 {
-    initiateDeck,
-    distributeCards,
+    setUpGame,
 }

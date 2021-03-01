@@ -20,11 +20,12 @@ function PlayerHand(index, name)
     this.name = name;
 }
 
-function PlayerRack(cards, index, name)
+function PlayerRack(cards, index, name, score)
 {
     this.cards = cards;
     this.index = index;
     this.name = name;
+    this.score = score;
 }
 
 function Set(cards, id)

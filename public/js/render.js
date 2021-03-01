@@ -133,16 +133,11 @@ const renderScoreboard = () =>
         if (i === GameState.currentPlayerIndex)
         {
             playerScore.classList.add('selected');
-            playerScore.innerHTML = 
-                `<div class="scoreboard-item-player-name">👉 ${GameState.playerRackArr[i].name}</div>
-                 <div class="scoreboard-item-player-score">${GameState.playerRackArr[i].cards.length}</div>`;
         }
-        else
-        {
-            playerScore.innerHTML = 
-                `<div class="scoreboard-item-player-name">${GameState.playerRackArr[i].name}</div>
-                 <div class="scoreboard-item-player-score">${GameState.playerRackArr[i].cards.length}</div>`;
-        }
+
+        playerScore.innerHTML = 
+        `<div class="scoreboard-item-player-name">${GameState.playerRackArr[i].name}</div>
+        <div class="scoreboard-item-player-score">${GameState.playerRackArr[i].score}</div>`;
         
         Node.scoreboard.appendChild(playerScore);
     }
@@ -193,13 +188,10 @@ const renderHand = () =>
 {
     Node.playerConsoleHand.innerHTML = '';
 
-    // if (GameState.currentPlayerIndex === thisPlayerIndex)
-    // {
-        thisPlayerHand.cards.forEach((card, index) => 
-        {
-            Node.playerConsoleHand.appendChild(renderCard(card, index));
-        });
-    // }
+    thisPlayerHand.cards.forEach((card, index) => 
+    {
+        Node.playerConsoleHand.appendChild(renderCard(card, index));
+    });
 }
 
 const renderPlayerConsole = () =>

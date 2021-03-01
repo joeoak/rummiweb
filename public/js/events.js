@@ -1,35 +1,10 @@
 import { socket, GameState, thisPlayerRack, thisPlayerIndex } from './scripts.js';
 
-const addSet = () =>
-{
-    socket.emit('add set');
-}
-
-const advanceTurn = () =>
-{
-    if (GameState.isValidBoard)
-    {
-        if (GameState.isCardsAdded === false &&
-            GameState.deckArr.length > 0)
-        {
-            socket.emit('draw card');
-        }
-
-        if (thisPlayerRack.cards.length === 0)
-        {
-            socket.emit('game over', thisPlayerIndex);
-        }
-        else
-        {
-            socket.emit('advance turn');
-        }
-    }
-}
+const addSet = () => socket.emit('add set');
+const advanceTurn = () => socket.emit('advance turn');
 
 const selectCard = e =>
 {
-    // console.log('card selected');
-
     e.stopPropagation();
 
     let targetCardData = new Object(

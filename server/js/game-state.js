@@ -1,15 +1,15 @@
 let GameState =
 {
     boardArr: new Array(),
-    currentPlayerIndex: 0,
     currentPlayerHand: null,
+    currentPlayerIndex: 0,
     currentPlayerRack: null,
     deckArr: new Array(),
     isCardsAdded: false,
     isValidBoard: true,
     playerCount: 2,
-    playerRackArr: new Array(),
     playerHandArr: new Array(),
+    playerRackArr: new Array(),
     setIdArr: new Array(),
     turnCounter: 1,
 }

@@ -8,6 +8,16 @@ let GameState = new Object(),
     thisPlayerHand,
     thisPlayerRack;
 
+window.onload = () =>
+{
+    socket.emit('load game');
+}
+
+socket.on('game over', msg =>
+{
+    window.alert(`${msg} wins!`);
+});
+
 socket.on('game update', msg =>
 {
     GameState = JSON.parse(msg);
