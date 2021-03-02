@@ -83,6 +83,9 @@ const setUpGame = () =>
 
     initiateDeck(GameState.deckArr);
     distributeCards(GameState.deckArr, GameState.playerHandArr, GameState.playerRackArr, 2);
+
+    GameState.currentPlayerHand = GameState.playerHandArr[GameState.currentPlayerIndex];
+    GameState.currentPlayerRack = GameState.playerRackArr[GameState.currentPlayerIndex];
 }
 
 module.exports =

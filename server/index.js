@@ -8,6 +8,7 @@ const PORT = 8000;
 
 const Class = require('./js/classes.js');
 const { setUpGame } = require('./js/game-setup.js');
+const { boardArr } = require('./js/game-state.js');
 const GameState = require('./js/game-state.js');
 const Utility = require('./js/utils.js');
 const Verify = require('./js/verify.js');
@@ -98,6 +99,60 @@ const updateScore = () =>
     })
 }
 
+/*
+let savedBoardArr = [],
+    savedPlayerHand = [],
+    savedPlayerRack = [],
+    savedSetIdArr = [];
+*/
+
+let SavedState;
+
+const setSavedState = () =>
+{
+    /*
+    savedBoardArr = [];
+    savedPlayerHand = [];
+    savedPlayerRack = [];
+    savedSetIdArr = [];
+
+    GameState.boardArr.forEach(set => savedBoardArr.push(set));
+    GameState.currentPlayerHand.cards.forEach(card => savedPlayerHand.push(card));
+    GameState.currentPlayerRack.cards.forEach(card => savedPlayerRack.push(card));
+    GameState.setIdArr.forEach(id => savedSetIdArr.push(id));
+    */
+
+    let tempObj =
+    {
+        boardArr: GameState.boardArr,
+        currentPlayerHand: GameState.currentPlayerHand,
+        currentPlayerRack: GameState.currentPlayerRack,
+        setIdArr: GameState.setIdArr,
+    }
+
+    SavedState = JSON.stringify(tempObj);
+}
+
+const getSavedState = () =>
+{
+    let tempObj = JSON.parse(SavedState);
+
+    GameState.boardArr = [];
+    GameState.currentPlayerHand.cards = [];
+    GameState.currentPlayerRack.cards = [];
+    GameState.setIdArr = [];
+
+    tempObj.boardArr.forEach(set => GameState.boardArr.push(set));
+    tempObj.currentPlayerHand.cards.forEach(card => GameState.currentPlayerHand.cards.push(card));
+    tempObj.currentPlayerRack.cards.forEach(card => GameState.currentPlayerRack.cards.push(card));
+    tempObj.setIdArr.forEach(id => GameState.setIdArr.push(id));
+
+    // console.log('--- saved state');
+    // console.log(tempObj.boardArr);
+    // console.log('--- game state');
+    // console.log(GameState.boardArr);
+}
+
 io.on('connection', socket =>
 {
     const emitGameState = () => io.sockets.emit('game update', JSON.stringify(GameState));
@@ -124,6 +179,7 @@ io.on('connection', socket =>
         setUpGame();
         updateGameState();
         emitGameState();
+        setSavedState();
     }
     else if (clientsCount > 1)
     {
@@ -188,8 +244,16 @@ io.on('connection', socket =>
                 updateScore();
                 updateGameState();
                 emitGameState();
+                setSavedState();
             }
         }
+    });
+
+    socket.on('revert state', () =>
+    {
+        getSavedState();
+        updateGameState();
+        emitGameState();
     });
     
     socket.on('select card', msg =>

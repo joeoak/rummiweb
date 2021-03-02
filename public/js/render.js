@@ -90,7 +90,14 @@ const renderConsoleButton = () =>
         {
             nextButton.classList.add('enabled');
         }
+
+        let revertButton = document.createElement('button');
+        revertButton.classList.add('player-console-button');
+        revertButton.id = 'button-revert-state';
+        revertButton.innerText = 'Revert state';
+        revertButton.onclick = () => Event.revertState();
         
+        Node.playerConsoleButtons.appendChild(revertButton);
         Node.playerConsoleButtons.appendChild(nextButton);
     }
     else

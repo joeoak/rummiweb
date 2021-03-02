@@ -3,6 +3,11 @@ import { socket, GameState, thisPlayerRack, thisPlayerIndex } from './scripts.js
 const addSet = () => socket.emit('add set');
 const advanceTurn = () => socket.emit('advance turn');
 
+const revertState = () =>
+{
+    socket.emit('revert state');
+}
+
 const selectCard = e =>
 {
     e.stopPropagation();
@@ -41,6 +46,7 @@ export
 {
     addSet,
     advanceTurn,
+    revertState,
     selectCard,
     selectCell,
     selectSet,
